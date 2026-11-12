@@ -33,19 +33,24 @@ let step = 0;
   };
 
   if (process.env.RR_URL) {   // 영수증 인증은 이미 됐고 리뷰 쓰기 화면부터 이어갈 때
-    await page.goto(process.env.RR_URL, { waitUntil: 'domcontentloaded' }); await sleep(4000); await dump('resume');
+    await page.goto(process.env.RR_URL, { waitUntil: 'domcontentloaded' }); await sleep(12000); await dump('resume');
   } else {
   // 1) 영수증 올리기
   await page.goto('https://m.place.naver.com/my/checkin', { waitUntil: 'domcontentloaded' });
   await sleep(4000);
   await page.locator('input[type=file]').first().setInputFiles(RECEIPT);
   await sleep(8000);   // OCR 인식 대기
+  for (let i = 0; i < 20 && /status=scanning/.test(page.url()); i++) await sleep(2000);   // 인식이 늦으면 최대 40초 더 기다림
+  await sleep(2000);
   await dump('after_receipt');
   const body = await page.innerText('body');
   if (!body.replace(/\s+/g, '').includes(STORE.replace(/\s+/g, ''))) {
     console.log(`⚠️ 화면에서 "${STORE}"를 찾지 못했습니다. 인식 결과를 확인하세요.`);
     await b.close(); process.exit(2);
   }
+  // 인식된 장소가 맞으면 '이 장소가 맞아요' (가게 이름 확인은 위에서 끝남)
+  const yes = page.locator('button').filter({ hasText: '이 장소가 맞아요' });
+  if (await yes.count()) { await yes.first().click(); await sleep(4000); await dump('place_ok'); console.log('RESUME_URL', page.url()); }
   }
   // 이후 단계는 화면 구조를 확인하며 채워 나간다 (아래 STEPS).
   // 앱 설치 안내가 뜨면 모바일 웹으로 계속

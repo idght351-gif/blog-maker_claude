@@ -5,6 +5,8 @@
 //   임시저장 끝나면            → done 2               : 3일 뒤 자동 정리 예약
 //   사용자: "1번 블로그 등록"  → clear 1              : 블로그에 발행된 것 확인(RSS) → 사진·영상 휴지통 → 1_빈폴더
 //   매일 (작업 스케줄러)        → cleanup              : 예약일이 지났고 발행이 확인된 폴더를 clear 와 같이 정리
+//   폴더에 영수증만 있을 때     → receipt 3 <가게>     : 3_<가게>, 영수증 리뷰 + 예전 글에 영수증 인증 카드 추가(edit_nds.js) 후 "등록했어요" 보고
+//   사용자가 피드백을 주면      → feedback 3           : 그날부터 3일 뒤 자동으로 비움 (이미 발행된 글이라 발행 확인 생략)
 //
 // 사용법
 //   node automation/drive.js auth                   처음 한 번: 브라우저로 구글 로그인 → 토큰 저장
@@ -14,6 +16,8 @@
 //   node automation/drive.js download <번호> <받을곳> 폴더 안 파일 전부 받기 (5MB 제한 없음)
 //   node automation/drive.js done <번호> [제목문구]   임시저장 완료 기록 + 3일 뒤 정리 예약
 //   node automation/drive.js clear <번호> [--force]  발행 확인 후 비우고 <번호>_빈폴더 (--force: 확인 없이)
+//   node automation/drive.js receipt <번호> <가게>    영수증만 있는 폴더: <번호>_<가게> (작업 종류 receipt)
+//   node automation/drive.js feedback <번호>         피드백 받은 날 기록 → 3일 뒤 정리 예약
 //   node automation/drive.js cleanup                예약일이 지난 폴더 정리 (발행 확인된 것만)
 //
 // 필요한 파일 (.state/ 는 깃에 올리지 않음)
@@ -150,19 +154,21 @@ async function status() {
   for (const n of Object.keys(all).map(Number).sort((a, b) => a - b)) for (const f of all[n]) {
     const cnt = (await filesIn(f.id)).length;
     const j = jobOf(jobs, n);
-    const st = f.rest === EMPTY ? '비어 있음' : j && j.deleteAfter ? `임시저장 완료 · 정리 예정 ${j.deleteAfter.slice(0, 10)}` : '작성 중';
+    const st = f.rest === EMPTY ? '비어 있음'
+      : j && j.kind === 'receipt' ? (j.deleteAfter ? `영수증 등록 완료 · 정리 예정 ${j.deleteAfter.slice(0, 10)}` : '영수증 등록 · 피드백 기다림')
+      : j && j.deleteAfter ? `임시저장 완료 · 정리 예정 ${j.deleteAfter.slice(0, 10)}` : '작성 중';
     log(`${f.name.padEnd(16)} 파일 ${String(cnt).padStart(3)}개  ${st}`);
   }
 }
 
-async function claim(n, store) {
-  if (!n || !store) throw new Error('사용법: claim <번호> <가게이름>');
+async function claim(n, store, kind = 'post') {
+  if (!n || !store) throw new Error(`사용법: ${kind === 'receipt' ? 'receipt' : 'claim'} <번호> <가게이름>`);
   const f = await byNum(n);
   if (f.rest !== EMPTY) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
   const cnt = (await filesIn(f.id)).length;
   if (!cnt) throw new Error(`${f.name} 에 사진이 없습니다.`);
   const jobs = readJson(JOBS, []);
-  jobs.push({ n: Number(n), store, folderId: f.id, claimedAt: new Date().toISOString() });
+  jobs.push({ n: Number(n), store, kind, folderId: f.id, claimedAt: new Date().toISOString() });
   writeJson(JOBS, jobs);
   await rename(f.id, `${n}_${store}`);
   log(`${f.name} → ${n}_${store} (파일 ${cnt}개)`);
@@ -193,6 +199,17 @@ async function done(n, titleHint) {
   log(`${n}_${j.store}: 임시저장 완료 기록 · ${j.deleteAfter.slice(0, 10)} 이후 발행이 확인되면 자동으로 비웁니다.`);
 }
 
+// 영수증만 있던 폴더: 사용자가 피드백을 준 날로부터 3일 뒤에 비운다
+async function feedback(n) {
+  const jobs = readJson(JOBS, []);
+  const j = jobOf(jobs, n);
+  if (!j) throw new Error(`${n}번 작업 기록이 없습니다.`);
+  j.feedbackAt = new Date().toISOString();
+  j.deleteAfter = new Date(Date.now() + KEEP_DAYS * 86400e3).toISOString();
+  writeJson(JOBS, jobs);
+  log(`${n}_${j.store}: 피드백 받음 · ${j.deleteAfter.slice(0, 10)} 이후 자동으로 비웁니다.`);
+}
+
 // 블로그 확인: 로그인 없이 RSS(최근 발행 글)에서 제목 문구를 찾는다.
 // 임시저장 목록은 보지 않음 — 글쓰기 화면의 "이어서 쓸까요?" 창에서 '취소'를 누르면 글이 지워지기 때문.
 async function published(hint) {
@@ -209,7 +226,8 @@ async function clear(n, force) {
   const jobs = readJson(JOBS, []);
   const j = jobOf(jobs, n);
   const hint = (j && j.titleHint) || f.rest;
-  const t = await published(hint);
+  if (j && j.kind === 'receipt') force = true;   // 이미 발행된 예전 글 → 발행 확인 생략
+  const t = force ? null : await published(hint);
   if (!t && !force) { log(`${f.name}: 블로그에서 "${hint}" 발행 글을 아직 못 찾았어요 → 지우지 않음 (발행 직후면 몇 분 뒤 다시)`); return false; }
   log(`${f.name}: 발행 확인 "${t || '(확인 생략)'}"`);
   const files = await filesIn(f.id);
@@ -234,6 +252,7 @@ const [cmd, a, b] = process.argv.slice(2);
 const run = {
   auth, init: () => init(a || 5), status, claim: () => claim(a, b), download: () => download(a, b),
   done: () => done(a, b), clear: () => clear(a, b === '--force'), cleanup,
+  receipt: () => claim(a, b, 'receipt'), feedback: () => feedback(a),
 }[cmd];
 if (!run) { log(fs.readFileSync(__filename, 'utf8').split('\n').filter(l => l.startsWith('//')).join('\n')); process.exit(1); }
 run().catch(e => { console.error('오류:', e.message); process.exit(1); });

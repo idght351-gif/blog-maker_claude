@@ -64,7 +64,7 @@ for blk in m.B:
     k = blk[0]
     if k == "img":
         if prev == "p": add_html(EMPTY * 3, [])          # 설명 글 아래 빈 줄 3개 (사용자 지시)
-        ops.append({"t": "img", "files": [str((UP / f"IMG_{n}.jpg").resolve()) for n in blk[1]]})
+        ops.append({"t": "img", "files": [str((UP / (f"IMG_{n}" if "." in n else f"IMG_{n}.jpg")).resolve()) for n in blk[1]]})
     elif k == "p":
         o = blk[2] if len(blk) > 2 else {}
         if o.get("c"): prev = k; continue

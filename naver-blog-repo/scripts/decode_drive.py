@@ -12,6 +12,11 @@ for f in src.glob("mcp-Google_Drive-download_file_content-*.txt"):
         d = json.loads(f.read_text())
     except Exception as e:
         print("skip", f.name, e); continue
+    if not d.get("mimeType", "image/").startswith("image/"):
+        v = out / "video" / d["title"]; v.parent.mkdir(exist_ok=True)
+        if not v.exists():
+            v.write_bytes(base64.b64decode(d["content"]))
+        continue
     h = out / "heic" / d["title"]
     if not h.exists():
         h.write_bytes(base64.b64decode(d["content"]))

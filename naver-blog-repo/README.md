@@ -33,6 +33,27 @@ node automation/qr_login.js
 ```
 `.state/shots/qr.png`에 QR 화면이 저장됩니다 → 휴대폰 **네이버 앱 → 검색창 옆 렌즈 → QR 스캔** → 화면에 나온 숫자 선택. 로그인 상태는 `.state/naver-state.json`에 저장되고 이후 모든 스크립트가 이걸 씁니다.
 
+### 구글 드라이브 연결 (Drive API, 처음 한 번)
+1. https://console.cloud.google.com → 새 프로젝트 → **API 및 서비스 → 라이브러리 → Google Drive API 사용**
+2. **OAuth 동의 화면**: 외부(External), 앱 이름 아무거나, 테스트 사용자에 본인 구글 계정 추가
+3. **사용자 인증 정보 → OAuth 클라이언트 ID → 애플리케이션 유형 "데스크톱 앱"** → JSON 다운로드
+4. 받은 JSON을 `.state/google-credentials.json` 으로 저장 (깃에 안 올라감)
+5. `node automation/drive.js auth` → 브라우저에서 로그인·허용
+6. `node automation/drive.js init` → 내 드라이브에 `1_빈폴더` ~ `5_빈폴더` 생성
+7. `powershell -ExecutionPolicy Bypass -File automation\register_cleanup_task.ps1` → 매일 정리 작업 등록
+
+### 사진 폴더 흐름 — 번호로 부르기 (사용자 지시 2026-11-12)
+폴더 이름은 항상 `<번호>_빈폴더` 또는 `<번호>_<가게이름>` 입니다.
+
+| 사용자가 하는 말 | Claude가 하는 일 | 폴더 이름 |
+|---|---|---|
+| **"2번 사진 업로드"** | 사진을 보고 가게 이름 판단 → `drive.js claim 2 <가게>` → `drive.js download 2 photos/<가게>/raw` → **바로 글쓰기 시작** → 영수증 있으면 영수증 리뷰 등록(확인 없이) → 임시저장 → 내돈내산 카드 → `drive.js done 2` | `2_빈폴더` → `2_<가게>` |
+| **"1번 블로그 등록"** | `drive.js clear 1` — 블로그 RSS에서 발행 확인 → 사진·영상 휴지통 | `1_<가게>` → `1_빈폴더` |
+| (말 안 해도) 임시저장 3일 뒤부터 매일 10시 | `drive.js cleanup` — 발행 확인된 것만 위와 같이 정리 | |
+
+- 발행이 안 보이면 지우지 않습니다. 지운 파일은 드라이브 휴지통에서 30일 안에 복구할 수 있습니다.
+- 상태 보기: `drive.js status`. 폴더가 모자라면 `drive.js init 8`처럼 개수를 늘립니다.
+
 ---
 
 ## 2. 글 한 편 만드는 순서
@@ -49,7 +70,9 @@ node automation/qr_login.js
 | 8. 입력 순서표 | `python3 scripts/make_spec3.py drafts/build_<가게>.py drafts/<가게>_upload drafts/<가게>_spec3.json` | 사진은 1600px로 미리 만들어 둠 |
 | 9. 임시저장 | `node automation/write_draft3.js drafts/<가게>_spec3.json <제목 문구>` | 검증(빠진 줄 0·순서·인용구·장소) 통과 시에만 저장 |
 | 10. 보정 | `automation/fix_draft.js`, `save_draft.js` | 장소·정렬이 빠졌을 때 |
-| 11. 앱에서 마무리 | 블로그 앱 | **맨 위 '위치 추가'(앱 전용)**, 영수증 인증, 발행 |
+| 11. 영수증 리뷰 | `node automation/receipt_review.js <영수증.jpg> <가게> <리뷰.txt> <음식사진.jpg> --submit` (환경 변수 `RR_STEPS='["^다음$"]'`, `RR_PICK`=방문 정보·키워드 목록) | 사용자 지시: 확인 없이 바로 등록 |
+| 12. 내돈내산 카드 | `node automation/add_nds.js <제목 문구> <가게>` | 임시저장 글 맨 위에 카드 추가 후 저장 |
+| 13. 앱에서 마무리 | 블로그 앱 | **맨 위 '위치 추가'(앱 전용)**, 발행 |
 
 ---
 

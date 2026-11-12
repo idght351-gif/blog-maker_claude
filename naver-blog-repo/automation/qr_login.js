@@ -8,6 +8,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
   const ctx = await chromium.launchPersistentContext(PROFILE, {
+    headless: !process.env.HEADED,   // PC에서는 HEADED=1 로 실행하면 QR이 화면 창에 바로 뜸
     viewport: { width: 1000, height: 900 }, locale: 'ko-KR', timezoneId: 'Asia/Seoul',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' });
   const page = ctx.pages()[0] || await ctx.newPage();

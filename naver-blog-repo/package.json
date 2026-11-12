@@ -1,0 +1,6 @@
+{
+  "name": "naver-blog-automation",
+  "private": true,
+  "description": "은똥이의 먹보여행 네이버 블로그 글쓰기·임시저장 자동화",
+  "dependencies": { "playwright": "^1.48.0" }
+}

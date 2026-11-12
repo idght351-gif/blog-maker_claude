@@ -52,6 +52,7 @@
 | 드라이브 폴더 | **번호로 부름**: `<번호>_빈폴더` / `<번호>_<가게>`. "N번 사진 업로드" → claim → 바로 글쓰기, "N번 블로그 등록" → clear (README 표 참고). ✅ `automation/drive.js` (Drive API OAuth 연결됨), ✅ 작업 스케줄러 `NaverBlog_DriveCleanup` 매일 10:00 (임시저장 3일 뒤 발행 확인되면 자동 정리). 현재: 1~5 빈폴더, `6_쿠로카메`(사진 41장, 예전 `블로그` 폴더) |
 | 영수증 리뷰 | **확인 없이 바로 등록** (사용자 지시). ✅ `automation/receipt_review.js` — 영수증 업로드 → "이 장소가 맞아요" → 방문 정보·별점(aria-label)·키워드 → 글+사진 → 등록. 쿠로카메 등록 완료 (11/12, 별점 5, 키워드 5, 사진 IMG_9578) |
 | 내돈내산 카드 | ✅ `automation/add_nds.js` — 기존 임시저장 글을 열어 제목 끝 Enter로 빈 줄을 만든 뒤 카드(se-custom)를 넣고, 맨 위일 때만 저장. 쿠로카메 글 맨 위에 추가·저장 완료 |
+| 썸네일 | ✅ `automation/make_thumb.js`(기존 썸네일 스타일 재현, Playwright로 렌더링 — Python 불필요) + `automation/add_thumb.js`(최상단 삽입·대표 지정·저장). 쿠로카메 완료: 글 순서 = 썸네일(대표) → 내돈내산 카드 → 본문 |
 | 남은 일 | 쿠로카메 글의 메뉴 줄 간격은 예전 방식 그대로 (새 규칙은 다음 글부터). 앱에서 위치 추가 → 발행 |
 | PC 환경 | Node v26 (PATH 밖: `C:\Program Files\nodejs`), Playwright 설치됨, **Python 미설치** (HEIC 변환·모자이크·make_spec3에 필요). 네이버 로그인: `HEADED=1 node automation/qr_login.js` (PC 화면에 QR) |
 

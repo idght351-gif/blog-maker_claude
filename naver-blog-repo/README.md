@@ -75,6 +75,7 @@ node automation/qr_login.js
 | 11. 영수증 리뷰 | `node automation/receipt_review.js <영수증.jpg> <가게> <리뷰.txt> <음식사진.jpg> --submit` (환경 변수 `RR_STEPS='["^다음$"]'`, `RR_PICK`=방문 정보·키워드 목록) | 사용자 지시: 확인 없이 바로 등록 |
 | 12. 내돈내산 카드 | `node automation/add_nds.js <제목 문구> <가게>` | 임시저장 글 맨 위에 카드 추가 후 저장 |
 | 13. 썸네일 | `drafts/<가게>_thumb.json` 작성 → `node automation/make_thumb.js drafts/<가게>_thumb.json photos/<가게>/thumb/thumbnail.jpg` → `node automation/add_thumb.js <제목 문구> photos/<가게>/thumb/thumbnail.jpg` | 기존 썸네일 스타일(손글씨 가게명♥·분홍 리본·말풍선·반짝이·워터마크)로 1080px 정사각형 생성 → **최상단(내돈내산 카드 위)**에 넣고 대표 사진 지정 후 저장. 반드시 12번 다음에 실행 |
+| 13-1. 발행 글 썸네일 교체 | `node automation/edit_thumb.js <가게> <새 썸네일.jpg> [--dry] [--category 먹보여행]` | 첫 사진 삭제 → 새 썸네일 맨 위·대표 지정 → 수정 발행 |
 | 14. 앱에서 마무리 | 블로그 앱 | **맨 위 '위치 추가'(앱 전용)**, 발행 |
 
 ---

@@ -96,7 +96,7 @@ for blk in m.B:
 # 맨 아래 해시태그
 add_html(EMPTY * 2 + para(html.escape(" ".join(m.TAGS.split()))), [" ".join(m.TAGS.split())])
 title = m.TITLE
-OUT.write_text(json.dumps({"title": title, "ops": ops, "lines": lines,
+OUT.write_text(json.dumps({"title": title, "category": getattr(m, "CATEGORY", "먹보여행"), "ops": ops, "lines": lines,
                            "n_quote": sum(1 for o in ops if o["t"] == "quote"),
                            "n_img": sum(len(o["files"]) for o in ops if o["t"] == "img")}, ensure_ascii=False))
 print(f"작업 {len(ops)}개, 확인할 줄 {len(lines)}, 인용구 {sum(1 for o in ops if o['t']=='quote')}, 사진 {sum(len(o['files']) for o in ops if o['t']=='img')}")

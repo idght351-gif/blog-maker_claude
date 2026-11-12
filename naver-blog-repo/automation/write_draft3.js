@@ -156,6 +156,15 @@ const BODY = '.se-component.se-text .se-text-paragraph';
     await fr.locator(BODY).first().click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Delete');
     await ctx.storageState({ path: S + '/naver-state.json' }); await b.close(); return;
   }
+  // 카테고리 (사용자 지시 2026-11-12): 매장 방문기 = 먹보여행, 편의점·대형 프랜차이즈 신제품 = 제품리뷰. 발행 설정 창에서 고르고 닫은 뒤 저장
+  {
+    const want = spec.category || '먹보여행';
+    await fr.locator('[data-click-area="tpb.publish"]').click(); await sleep(2500);
+    const got = await require('./category').selectCategory(fr, page, want, S);
+    console.log('카테고리:', got, got === want ? '' : `⚠️ (원하는 값: ${want})`);
+    await fr.locator('[data-click-area="tpb.publish"]').click().catch(() => {}); await sleep(1200);   // 발행하지 않고 창만 닫기
+    if (await fr.locator('[data-click-area="tpb*i.publish"]').isVisible().catch(() => false)) { await page.keyboard.press('Escape'); await sleep(800); }
+  }
   await fr.locator('[data-click-area="tpb.save"]').click(); await sleep(4000);
   console.log(`임시저장 완료: ${before} → ${(await countBtn.innerText()).trim()}`);
 

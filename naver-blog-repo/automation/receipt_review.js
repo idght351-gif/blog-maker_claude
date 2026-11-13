@@ -48,6 +48,13 @@ let step = 0;
     console.log(`⚠️ 화면에서 "${STORE}"를 찾지 못했습니다. 인식 결과를 확인하세요.`);
     await b.close(); process.exit(2);
   }
+  // 영수증에서 방문 시간을 못 읽으면 시간 칸이 비어 '맞아요'가 꺼져 있음 → RR_TIME(예: "12:08")으로 채움
+  const tin = page.locator('input[type=time]').first();
+  if (await tin.count() && !(await tin.inputValue())) {
+    if (!process.env.RR_TIME) { console.log('⚠️ 방문 시간이 비어 있음 → RR_TIME="HH:MM" 필요'); await b.close(); process.exit(3); }
+    await tin.fill(process.env.RR_TIME); await tin.dispatchEvent('change'); await sleep(1500);
+    console.log('방문 시간 입력:', await tin.inputValue());
+  }
   // 인식된 장소가 맞으면 '이 장소가 맞아요' (가게 이름 확인은 위에서 끝남)
   const yes = page.locator('button').filter({ hasText: '이 장소가 맞아요' });
   if (await yes.count()) { await yes.first().click(); await sleep(4000); await dump('place_ok'); console.log('RESUME_URL', page.url()); }

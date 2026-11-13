@@ -89,7 +89,7 @@ for blk in m.B:
         lines.extend(m.plain(x) for x in parts)
     elif k == "place":
         add_html(EMPTY * 2, [])
-        ops.append({"t": "place", "query": blk[1]})
+        ops.append({"t": "place", "query": blk[1], **({"match": blk[2]} if len(blk) > 2 else {})})
     elif k == "hr":
         add_html(EMPTY * 2, [])
     prev = k

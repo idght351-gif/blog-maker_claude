@@ -9,6 +9,7 @@ OUT = ROOT / "drafts"
 RESEARCH_DIR = str(ROOT / "data" / "research" / "becco")
 
 CROP = {"9526": 0.45, "9527": 0.5, "9537": 0.45, "9513": 0.3}
+ROTATE = {"9521": 90, "9522": 90, "9523": 90}   # 반시계 방향 각도. 옆으로 찍힌 메뉴판
 COLORS = {"r": "#f12f22", "p": "#f02c8c", "g": "#00a350", "bl": "#0076c8", "o": "#ff9c23"}
 
 NDS_QUERY = "베코"
@@ -144,6 +145,8 @@ def plain(t):
 
 def load(n):
     im = Image.open(PHOTOS / (f"IMG_{n}" if "." in n else f"IMG_{n}.jpg")).convert("RGB")
+    if n in ROTATE:   # 내용이 옆으로 누운 사진(메뉴판 등)은 자르지 않고 사진 자체를 돌림 (사용자 지시 2026-11-13)
+        return im.rotate(ROTATE[n], expand=True)
     w, h = im.size
     if h > w:  # 세로 사진 → 가로 4:3
         nh = int(w * 3 / 4)

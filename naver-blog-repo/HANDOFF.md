@@ -117,3 +117,7 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
 - Drive 사진 중 EXIF 회전값(6)이 남은 원본은 blur 후 `ImageOps.exif_transpose`로 바로 세워야 함 (blur_faces.py는 얼굴 없는 사진을 원본 그대로 복사함).
 - 4 베코: 사용자 발행 완료 (2026-11-13 22:22, https://blog.naver.com/seoeunjin13/224476203247). 드라이브 4번 폴더 비우기·'4_빈폴더'로 이름 변경은 드라이브 연결이 끊겨 보류.
 - 3 하늘초밥·5 악토버: 사용자가 영수증을 폴더에 추가함 → 드라이브 재연결 후 영수증 리뷰 + add_nds.js 진행 필요.
+- 2026-11-13 밤: 영수증 확인 → 하늘초밥 실제 주소 이화여대2길 7, 욕심쟁이 매장 59,000원 / 악토버 실제 구매는 '라우겐 스콘 4,000원'. build_sky.py·build_october.py와 spec은 고쳤고, 네이버 임시저장 글 반영은 로그인 후 해야 함 (영수증 리뷰 → add_nds → 본문 문구 수정).
+- 영수증 파일: photos/sky/receipt/receipt.jpg, photos/october/receipt/receipt.jpg
+- 드라이브 4_베코: 25개 중 11개만 휴지통으로 옮김 (사용자가 중간에 거부). 나머지 14개와 폴더 이름 변경은 그대로 둠.
+- 로그인 유지: 저장 쿠키가 세션 쿠키였음 → qr_login.js가 '로그인 상태 유지'(nvlong=on)를 넣도록 수정, 로그인 후 NID_AUT 만료 시각을 출력. automation/keep_alive.js로 쿠키 갱신 가능.

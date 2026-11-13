@@ -14,8 +14,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const page = await ctx.newPage(); page.on('dialog', d => { console.log('대화상자:', d.message().slice(0, 60)); d.accept(); });
   await page.goto('https://blog.naver.com/seoeunjin13?Redirect=Write&', { waitUntil: 'domcontentloaded', timeout: 60000 }); await sleep(10000);
   const fr = page.frame('mainFrame');
-  if (await fr.locator('.se-popup-button-cancel').count()) { await fr.locator('.se-popup-button-confirm').first().click(); await sleep(5000); }
-  else {
+  let needList = true;
+  if (await fr.locator('.se-popup-button-cancel').count()) {   // '이어서 쓸까요?' → 취소는 글을 지우므로 확인(이어쓰기)만. 다른 글이면 목록에서 다시 고름
+    await fr.locator('.se-popup-button-confirm').first().click(); await sleep(5000);
+    needList = !(await fr.locator('.se-title-text').first().innerText()).includes(OWN);
+  }
+  if (needList) {
     const help0 = fr.locator('.se-help-panel-close-button'); if (await help0.count()) { await help0.first().click().catch(() => {}); await sleep(800); }
     await fr.locator('[data-click-area="tpb*s.count"]').evaluate(e => e.click()); await sleep(2500);
     await fr.locator('li', { has: fr.locator('button[class*="article_button"]') }).filter({ hasText: OWN }).first().locator('button[class*="article_button"]').click(); await sleep(7000);
@@ -34,7 +38,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   // 1) 제목 끝에서 Enter → 맨 위에 빈 줄 → 그 자리에 사진 넣기 (이미 사진·카드 순서면 건너뜀: 자동 저장으로 남은 경우)
   const pre = await order();
-  if (pre[0] === 'image' && pre[1] === 'custom') console.log('맨 위에 이미 사진이 있음 → 넣기 건너뜀');
+  if (pre[0] === 'image' && pre[1] === 'custom') console.log('맨 위에 이미 사진이 있음 → 넣기 건너뜀');   // (카드 없는 글은 아래 비교로 판단)
   else {
   await fr.locator('.se-title-text').first().click(); await page.keyboard.press('End'); await sleep(300);
   await page.keyboard.press('Enter'); await sleep(1000);
@@ -45,7 +49,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const ord = await order();
   console.log('사진 넣은 후:', JSON.stringify(ord));
   await page.screenshot({ path: S + '/shots/thumb_1_inserted.png' });
-  if (ord[0] !== 'image' || ord[1] !== 'custom') {
+  if (ord[0] !== 'image' || ord[1] !== pre[0]) {   // 새 사진 바로 아래가 원래 첫 요소(카드 또는 첫 사진)여야 함
     console.log('중단: 썸네일이 맨 위에 들어가지 않음 → 되돌리고 저장 안 함');
     for (let i = 0; i < 3; i++) { await page.keyboard.press('Control+Z'); await sleep(500); }
     await b.close(); return;

@@ -15,8 +15,12 @@ const NDS = '.se-component.se-custom';   // 내돈내산 카드는 se-custom 컴
   const page = await ctx.newPage(); page.on('dialog', d => { console.log('대화상자:', d.message().slice(0, 60)); d.accept(); });
   await page.goto('https://blog.naver.com/seoeunjin13?Redirect=Write&', { waitUntil: 'domcontentloaded', timeout: 60000 }); await sleep(10000);
   const fr = page.frame('mainFrame');
-  if (await fr.locator('.se-popup-button-cancel').count()) { await fr.locator('.se-popup-button-confirm').first().click(); await sleep(5000); }
-  else {
+  let needList = true;
+  if (await fr.locator('.se-popup-button-cancel').count()) {   // '이어서 쓸까요?' → 취소는 글을 지우므로 확인(이어쓰기)만. 다른 글이면 목록에서 다시 고름
+    await fr.locator('.se-popup-button-confirm').first().click(); await sleep(5000);
+    needList = !(await fr.locator('.se-title-text').first().innerText()).includes(OWN);
+  }
+  if (needList) {
     await page.screenshot({ path: S + '/shots/nds_0_open.png' });
     const help0 = fr.locator('.se-help-panel-close-button'); if (await help0.count()) { await help0.first().click().catch(() => {}); await sleep(800); }
     await fr.locator('[data-click-area="tpb*s.count"]').evaluate(e => e.click()); await sleep(2500);

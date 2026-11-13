@@ -44,7 +44,7 @@ let step = 0;
   await sleep(2000);
   await dump('after_receipt');
   const body = await page.innerText('body');
-  if (!body.replace(/\s+/g, '').includes(STORE.replace(/\s+/g, ''))) {
+  if (!body.replace(/\s+/g, '').toLowerCase().includes(STORE.replace(/\s+/g, '').toLowerCase())) {   // 대소문자 무시 (BHC/bhc)
     console.log(`⚠️ 화면에서 "${STORE}"를 찾지 못했습니다. 인식 결과를 확인하세요.`);
     await b.close(); process.exit(2);
   }

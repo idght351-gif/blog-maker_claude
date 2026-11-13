@@ -180,9 +180,9 @@ const BODY = '.se-component.se-text .se-text-paragraph';
   await fr.locator('[data-click-area="tpb.save"]').click(); await sleep(4000);
   console.log(`임시저장 완료: ${before} → ${(await countBtn.innerText()).trim()}`);
 
-  // 예전 시험 글 삭제 (같은 문구가 들어간 글 중 가장 최신 1개만 남김)
+  // 같은 제목의 예전 임시저장 글은 지우지 않고 목록만 알려줌 (2026-11-13: 짧은 문구로 찾다가 다른 글까지 잡힌 적이 있음 → 자동 삭제 중단)
   await countBtn.click(); await sleep(2500);
-  const items = fr.locator('li', { has: fr.locator('button[class*="delete_button"]') }).filter({ hasText: OWN });
+  const items = fr.locator('li', { has: fr.locator('button[class*="article_button"]') }).filter({ hasText: spec.title.slice(0, 25) });
   const info = [];
   for (let i = 0; i < await items.count(); i++) {
     const t = (await items.nth(i).innerText()).replace(/\s+/g, ' ');
@@ -191,11 +191,7 @@ const BODY = '.se-component.se-text .se-text-paragraph';
   }
   info.sort((a, b) => b.key - a.key);
   console.log('같은 제목 임시저장 글:', info.map(x => x.t).join(' / '));
-  for (const x of info.slice(1).sort((a, b) => b.i - a.i)) {
-    await items.nth(x.i).locator('button[class*="delete_button"]').click(); await sleep(1500);
-    const conf = fr.locator('.se-popup-button-confirm, button:has-text("확인")').last(); if (await conf.count() && await conf.isVisible()) { await conf.click(); await sleep(1500); }
-    console.log('예전 시험 글 삭제:', x.t);
-  }
+  if (info.length > 1) console.log('⚠️ 같은 제목 임시저장 글이 여러 개 → 예전 것은 직접 지워주세요');
   await page.screenshot({ path: S + '/shots/v3_saved.png' });
   await ctx.storageState({ path: S + '/naver-state.json' });
   await b.close();

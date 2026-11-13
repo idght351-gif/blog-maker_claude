@@ -68,6 +68,12 @@
 - `receipt_review.js`: OCR 인식 대기(최대 40초 추가), '이 장소가 맞아요' 자동 클릭 추가. 리뷰 화면 주소는 `RESUME_URL`로 출력 → `RR_URL`로 이어가기.
 - Drive 커넥터는 약 8MB 넘는 파일(영상 2개)을 못 받음.
 
+### 2026-11-13 남은 일 (4_베코)
+- 초안·점검·썸네일 완료: `drafts/build_becco.py`, `drafts/becco_spec3.json`, `photos/becco/thumb/thumbnail.jpg` (힉스필드, `drafts/becco_thumb_higgsfield.jpg`)
+- **네이버 로그인 후** 순서: `node automation/write_draft3.js drafts/becco_spec3.json 베코` → 영수증 리뷰(`photos/becco/receipt/IMG_9658.jpg`, 사진 `drafts/becco_upload/IMG_9533.jpg`) → `add_nds.js 베코 베코` → `add_thumb.js 베코 photos/becco/thumb/thumbnail.jpg`
+- 사진은 클라우드 세션 안에만 있음(깃 제외). 새 세션이면 드라이브 `4_베코`에서 다시 받기
+- 드라이브: 1·2·3·6번(발행 완료)은 휴지통, 1·2·3번 빈폴더 새로 만듦
+
 ## 4. 환경 변수 (클라우드 환경 설정 → 환경 변수)
 | 이름 | 용도 |
 |---|---|

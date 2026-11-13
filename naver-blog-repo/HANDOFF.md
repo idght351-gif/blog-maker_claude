@@ -108,3 +108,10 @@
 npm install -g @playwright/cli@latest && playwright-cli install --skills --global
 pip install pillow-heif opencv-python-headless beautifulsoup4
 ```
+
+## 2026-11-13 진행 (폴더 1·2·3·5)
+- 1 bhc 이수역점: 임시저장(제품리뷰) + 영수증 리뷰 + 내돈내산 카드 + 썸네일. 11:08 중복 임시저장 1개는 사용자가 앱에서 직접 삭제 필요.
+- 2 리요리요: 임시저장 + 영수증 리뷰 + 내돈내산 카드 + 썸네일.
+- 3 하늘초밥 본점(이대): 임시저장(먹보여행) + 썸네일·대표사진. 영수증 사진 없음 → 영수증 리뷰·카드 생략. 대기명단·손님 많은 사진(123949, 124501, 124521, 125055)은 제외.
+- 5 악토버: 임시저장 + 썸네일, 영수증 없음.
+- Drive 사진 중 EXIF 회전값(6)이 남은 원본은 blur 후 `ImageOps.exif_transpose`로 바로 세워야 함 (blur_faces.py는 얼굴 없는 사진을 원본 그대로 복사함).

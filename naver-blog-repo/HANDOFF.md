@@ -128,3 +128,7 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
 - 2026-11-14 GIF 추가: 하늘초밥(판초밥 4.4초), bhc(매장 3.9초로 교체 + 치킨 4.5초) 임시저장 글에 넣음 (`automation/insert_image.js`).
 - 리요리요는 08:30 사용자 발행됨 → GIF 2개(꿍치 9688, 아메리카노 9686, photos/liyo/blur/)는 발행 글 수정이 필요해서 사용자 확인 대기 (`POST_LOGNO=224476544569 node automation/insert_image.js 리요리요 '[...]'`).
 - 주의: 실패한 자동화도 에디터 자동 저장으로 중간 변경이 남을 수 있음 (bhc 옛 GIF가 이렇게 지워졌고, 새 GIF로 대체함).
+- 2026-11-14 (2): 리요리요 발행 글에 GIF 2개 추가 후 수정 발행 ✅ (사용자 허락). 베코 GIF 2개(파스타 9529, 마르게리따 9535 → photos/becco/blur/) 준비됨, 발행 글 수정은 분류기가 막아 사용자 확인 대기. 9519(손님 얼굴)·9525(12.5MB) 제외.
+- 6 멘라(마곡): 임시저장 + 내돈내산 카드 + 썸네일 ✅ (영수증 리뷰는 사용자가 직접 함). GIF 3개 포함.
+- 7 더가든키친(신사역 리버사이드호텔 뷔페, 7/31 방문): 임시저장 + 썸네일 ✅. 영수증 인증은 됐는데 리뷰 작성 화면을 못 찾음(같은 영수증 재업로드 시 경고) → 앱에서 리뷰 쓰기 후 add_nds.js 필요.
+- write_draft3 장소: 결과 항목 .se-place-map-search-result-item 안의 .se-place-add-button을 직접 클릭하도록 수정.

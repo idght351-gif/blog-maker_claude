@@ -3,9 +3,23 @@
     "allow": [
       "Bash(node naver-blog-repo/automation/drive.js:*)",
       "Bash(node automation/drive.js:*)",
+      "mcp__Google_Drive__search_files",
+      "mcp__Google_Drive__download_file_content",
+      "mcp__Google_Drive__get_file_metadata",
+      "mcp__Google_Drive__get_file_permissions",
+      "mcp__Google_Drive__update_file",
+      "mcp__Google_Drive__trash_file",
+      "mcp__Google_Drive__create_file",
+      "mcp__Google_Drive__share_file",
       "mcp__claude_ai_Google_Drive__search_files",
+      "mcp__claude_ai_Google_Drive__get_file_permissions",
       "mcp__claude_ai_Google_Drive__trash_file",
-      "mcp__claude_ai_Google_Drive__create_file"
+      "mcp__claude_ai_Google_Drive__create_file",
+      "mcp__claude_ai_Google_Drive__share_file",
+      "mcp__6518fb97-4b6f-4c71-9b14-48c61591f5f4__media_upload",
+      "mcp__6518fb97-4b6f-4c71-9b14-48c61591f5f4__media_confirm",
+      "mcp__6518fb97-4b6f-4c71-9b14-48c61591f5f4__generate_image",
+      "mcp__6518fb97-4b6f-4c71-9b14-48c61591f5f4__jobs_wait"
     ]
   },
   "hooks": {

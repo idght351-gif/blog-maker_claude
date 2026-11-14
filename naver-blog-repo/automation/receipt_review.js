@@ -33,18 +33,55 @@ let step = 0;
   };
 
   if (process.env.RR_URL) {   // 영수증 인증은 이미 됐고 리뷰 쓰기 화면부터 이어갈 때
-    await page.goto(process.env.RR_URL, { waitUntil: 'domcontentloaded' }); await sleep(4000); await dump('resume');
+    await page.goto(process.env.RR_URL, { waitUntil: 'domcontentloaded' }); await sleep(12000); await dump('resume');
   } else {
   // 1) 영수증 올리기
   await page.goto('https://m.place.naver.com/my/checkin', { waitUntil: 'domcontentloaded' });
   await sleep(4000);
   await page.locator('input[type=file]').first().setInputFiles(RECEIPT);
   await sleep(8000);   // OCR 인식 대기
+  for (let i = 0; i < 20 && /status=scanning/.test(page.url()); i++) await sleep(2000);   // 인식이 늦으면 최대 40초 더 기다림
+  await sleep(2000);
   await dump('after_receipt');
+  // 영수증으로 가게를 못 찾으면 장소 검색 화면(matched=search)이 뜸 → RR_SEARCH로 검색, RR_SEARCH_MATCH(주소 일부 등)가 들어간 결과를 고름
+  // 후보가 여러 개(matched=multiple)면 RR_PICK_PLACE 글자가 들어간 후보를 고름
+  if (/matched=multiple/.test(page.url())) {
+    const want = process.env.RR_PICK_PLACE || STORE;
+    const cand = page.locator('button').filter({ hasText: want });
+    if ((await cand.count()) !== 1) { console.log(`⚠️ 후보 중 "${want}"가 ${await cand.count()}개 → RR_PICK_PLACE로 좁혀주세요`); await b.close(); process.exit(4); }
+    await cand.first().click(); await sleep(4000); await dump('multi_pick');
+  }
+  if (/matched=search/.test(page.url())) {
+    if (!process.env.RR_SEARCH) { console.log('⚠️ 가게 자동 인식 실패 → RR_SEARCH="가게 이름" (+ RR_SEARCH_MATCH="주소 일부") 필요'); await b.close(); process.exit(4); }
+    const q = page.locator('input[type=text]').first();
+    await q.click(); await q.fill(process.env.RR_SEARCH); await q.press('Enter'); await sleep(4000);
+    await dump('search');
+    const want = process.env.RR_SEARCH_MATCH || process.env.RR_SEARCH;
+    const hit = page.locator('li, button, a, [role=button]').filter({ hasText: want }).last();
+    if (!(await hit.count())) { console.log(`⚠️ 검색 결과에 "${want}"가 없음`); await b.close(); process.exit(4); }
+    await hit.click(); await sleep(4000);
+    await dump('search_pick');
+  }
   const body = await page.innerText('body');
-  if (!body.replace(/\s+/g, '').includes(STORE.replace(/\s+/g, ''))) {
+  if (!body.replace(/\s+/g, '').toLowerCase().includes(STORE.replace(/\s+/g, '').toLowerCase())) {   // 대소문자 무시 (BHC/bhc)
     console.log(`⚠️ 화면에서 "${STORE}"를 찾지 못했습니다. 인식 결과를 확인하세요.`);
     await b.close(); process.exit(2);
+  }
+  // 영수증에서 방문 시간을 못 읽으면 시간 칸이 비어 '맞아요'가 꺼져 있음 → RR_TIME(예: "12:08")으로 채움
+  const tin = page.locator('input[type=time]').first();
+  if (await tin.count() && !(await tin.inputValue())) {
+    if (!process.env.RR_TIME) { console.log('⚠️ 방문 시간이 비어 있음 → RR_TIME="HH:MM" 필요'); await b.close(); process.exit(3); }
+    await tin.fill(process.env.RR_TIME); await tin.dispatchEvent('change'); await sleep(1500);
+    console.log('방문 시간 입력:', await tin.inputValue());
+  }
+  // 인식된 장소가 맞으면 '이 장소가 맞아요' (가게 이름 확인은 위에서 끝남)
+  const yes = page.locator('button').filter({ hasText: '이 장소가 맞아요' });
+  if (await yes.count()) {
+    await yes.first().click(); await sleep(4000);
+    // 검색으로 고른 장소는 '맞아요' 뒤에 '다음 단계로 이동' 확인이 한 번 더 뜸
+    const next = page.locator('button').filter({ hasText: '다음 단계로 이동' });
+    if (await next.count() && await next.first().isVisible()) { await next.first().click(); await sleep(5000); }
+    await dump('place_ok'); console.log('RESUME_URL', page.url());
   }
   }
   // 이후 단계는 화면 구조를 확인하며 채워 나간다 (아래 STEPS).

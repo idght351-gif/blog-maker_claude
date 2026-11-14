@@ -56,6 +56,24 @@
 | 남은 일 | 쿠로카메 글의 메뉴 줄 간격은 예전 방식 그대로 (새 규칙은 다음 글부터). 앱에서 위치 추가 → 발행 |
 | PC 환경 | Node v26 (PATH 밖: `C:\Program Files\nodejs`), Playwright 설치됨, **Python 미설치** (HEIC 변환·모자이크·make_spec3에 필요). 네이버 로그인: `HEADED=1 node automation/qr_login.js` (PC 화면에 QR) |
 
+### 2026-11-12 클라우드 세션 (1·2·3번 폴더)
+| 폴더 | 결과 |
+|---|---|
+| `1_미스터리브루잉컴퍼니` | 영수증만 → 영수증 리뷰 등록(별점 5) + 11/2 발행 글 썸네일 아래 인증 카드 추가·수정 발행 ✅ |
+| `2_베레프트` | 영수증만 → 이미 같은 방문에 리뷰(별점 5·키워드)가 있어 새 리뷰는 안 씀. 11/2 글에 인증 카드 추가·수정 발행 ✅ |
+| `3_아메리칸트레일러` | 새 글 임시저장 ✅ (98줄 검증, 사진 16·GIF 1, 장소 지도, 해시태그 25) → 영수증 리뷰 → 인증 카드 → **힉스필드 썸네일**(대표) ✅. 앱에서 위치 추가 → 발행 남음 |
+
+- 클라우드에서는 `drive.js`(OAuth 토큰이 PC에만 있음) 대신 Drive 커넥터로 폴더 이름만 바꿨습니다. PC의 정리 작업 기록(`done`)은 남지 않으니 발행 후 "N번 블로그 등록"으로 비우거나 PC에서 `drive.js claim/done`을 다시 해야 합니다.
+- 클라우드 Node에서 네이버 API를 부를 때: `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` (없으면 edit_nds.js의 fetch가 막힘). 저장소 `node_modules`의 Playwright는 지우고 미리 설치된 것을 씀.
+- `receipt_review.js`: OCR 인식 대기(최대 40초 추가), '이 장소가 맞아요' 자동 클릭 추가. 리뷰 화면 주소는 `RESUME_URL`로 출력 → `RR_URL`로 이어가기.
+- Drive 커넥터는 약 8MB 넘는 파일(영상 2개)을 못 받음.
+
+### 2026-11-13 남은 일 (4_베코)
+- 초안·점검·썸네일 완료: `drafts/build_becco.py`, `drafts/becco_spec3.json`, `photos/becco/thumb/thumbnail.jpg` (힉스필드, `drafts/becco_thumb_higgsfield.jpg`)
+- **네이버 로그인 후** 순서: `node automation/write_draft3.js drafts/becco_spec3.json 베코` → 영수증 리뷰(`photos/becco/receipt/IMG_9658.jpg`, 사진 `drafts/becco_upload/IMG_9533.jpg`) → `add_nds.js 베코 베코` → `add_thumb.js 베코 photos/becco/thumb/thumbnail.jpg`
+- 사진은 클라우드 세션 안에만 있음(깃 제외). 새 세션이면 드라이브 `4_베코`에서 다시 받기
+- 드라이브: 1·2·3·6번(발행 완료)은 휴지통, 1·2·3번 빈폴더 새로 만듦
+
 ## 4. 환경 변수 (클라우드 환경 설정 → 환경 변수)
 | 이름 | 용도 |
 |---|---|
@@ -90,3 +108,28 @@
 npm install -g @playwright/cli@latest && playwright-cli install --skills --global
 pip install pillow-heif opencv-python-headless beautifulsoup4
 ```
+
+## 2026-11-13 진행 (폴더 1·2·3·5)
+- 1 bhc 이수역점: 임시저장(제품리뷰) + 영수증 리뷰 + 내돈내산 카드 + 썸네일. 11:08 중복 임시저장 1개는 사용자가 앱에서 직접 삭제 필요.
+- 2 리요리요: 임시저장 + 영수증 리뷰 + 내돈내산 카드 + 썸네일.
+- 3 하늘초밥 본점(이대): 임시저장(먹보여행) + 썸네일·대표사진. 영수증 사진 없음 → 영수증 리뷰·카드 생략. 대기명단·손님 많은 사진(123949, 124501, 124521, 125055)은 제외.
+- 5 악토버: 임시저장 + 썸네일, 영수증 없음.
+- Drive 사진 중 EXIF 회전값(6)이 남은 원본은 blur 후 `ImageOps.exif_transpose`로 바로 세워야 함 (blur_faces.py는 얼굴 없는 사진을 원본 그대로 복사함).
+- 4 베코: 사용자 발행 완료 (2026-11-13 22:22, https://blog.naver.com/seoeunjin13/224476203247). 드라이브 4번 폴더 비우기·'4_빈폴더'로 이름 변경은 드라이브 연결이 끊겨 보류.
+- 3 하늘초밥·5 악토버: 사용자가 영수증을 폴더에 추가함 → 드라이브 재연결 후 영수증 리뷰 + add_nds.js 진행 필요.
+- 2026-11-13 밤: 영수증 확인 → 하늘초밥 실제 주소 이화여대2길 7, 욕심쟁이 매장 59,000원 / 악토버 실제 구매는 '라우겐 스콘 4,000원'. build_sky.py·build_october.py와 spec은 고쳤고, 네이버 임시저장 글 반영은 로그인 후 해야 함 (영수증 리뷰 → add_nds → 본문 문구 수정).
+- 영수증 파일: photos/sky/receipt/receipt.jpg, photos/october/receipt/receipt.jpg
+- 드라이브 4_베코: 25개 중 11개만 휴지통으로 옮김 (사용자가 중간에 거부). 나머지 14개와 폴더 이름 변경은 그대로 둠.
+- 로그인 유지: 저장 쿠키가 세션 쿠키였음 → qr_login.js가 '로그인 상태 유지'(nvlong=on)를 넣도록 수정, 로그인 후 NID_AUT 만료 시각을 출력. automation/keep_alive.js로 쿠키 갱신 가능.
+- GIF 점검: bhc 2.6초(원본 3.9초 → 다시 만들 수 있음), 리요리요 2.1초(원본 자체가 2.2초), 악토버 3.8초. 하늘초밥은 영상 16MB라 못 받음. 베코는 영상 4개(9519·9525·9529·9535)를 GIF로 안 넣고 발행됨 → 누락. 그 영상들은 4_베코 정리 때 휴지통으로 감 (드라이브 휴지통에서 복원 가능).
+- 2026-11-14: QR 로그인(로그인 상태 유지 적용, NID_AUT 2027-12-18까지). 하늘초밥·악토버 영수증 리뷰 등록 ✅, 내돈내산 카드 ✅, 썸네일을 카드 위로 다시 정렬 ✅ (`THUMB_REPLACE=1 node automation/add_thumb.js`), 본문 주소·메뉴명 수정 ✅ (`automation/replace_text.js`).
+- 영수증 가게 자동 인식이 안 되면 `RR_SEARCH="가게 이름" RR_SEARCH_MATCH="주소 일부"`로 검색해서 고름.
+- 순서 주의: 내돈내산 카드를 썸네일보다 나중에 넣으면 카드가 맨 위로 감 → 영수증이 늦게 오면 add_nds 후 `THUMB_REPLACE=1`로 썸네일을 다시 맨 위에.
+- 2026-11-14 GIF 추가: 하늘초밥(판초밥 4.4초), bhc(매장 3.9초로 교체 + 치킨 4.5초) 임시저장 글에 넣음 (`automation/insert_image.js`).
+- 리요리요는 08:30 사용자 발행됨 → GIF 2개(꿍치 9688, 아메리카노 9686, photos/liyo/blur/)는 발행 글 수정이 필요해서 사용자 확인 대기 (`POST_LOGNO=224476544569 node automation/insert_image.js 리요리요 '[...]'`).
+- 주의: 실패한 자동화도 에디터 자동 저장으로 중간 변경이 남을 수 있음 (bhc 옛 GIF가 이렇게 지워졌고, 새 GIF로 대체함).
+- 2026-11-14 (2): 리요리요 발행 글에 GIF 2개 추가 후 수정 발행 ✅ (사용자 허락). 베코 GIF 2개(파스타 9529, 마르게리따 9535 → photos/becco/blur/) 준비됨, 발행 글 수정은 분류기가 막아 사용자 확인 대기. 9519(손님 얼굴)·9525(12.5MB) 제외.
+- 6 멘라(마곡): 임시저장 + 내돈내산 카드 + 썸네일 ✅ (영수증 리뷰는 사용자가 직접 함). GIF 3개 포함.
+- 7 더가든키친(신사역 리버사이드호텔 뷔페, 7/31 방문): 임시저장 + 썸네일 ✅. 영수증 인증은 됐는데 리뷰 작성 화면을 못 찾음(같은 영수증 재업로드 시 경고) → 앱에서 리뷰 쓰기 후 add_nds.js 필요.
+- write_draft3 장소: 결과 항목 .se-place-map-search-result-item 안의 .se-place-add-button을 직접 클릭하도록 수정.
+- 2026-11-14 (3): 리요리요·베코·더가든키친 발행 확인. 드라이브 2·4번 폴더 비우고 '2_빈폴더'·'4_빈폴더'로 변경 ✅. 7번 폴더 파일은 다른 계정(사진 올린 계정) 소유라 휴지통 이동 권한 없음 → 그 계정에서 직접 삭제 필요. 베코는 수정하지 않기로 함(사용자).

@@ -22,16 +22,27 @@ const BODY = '.se-component.se-text .se-text-paragraph';
   page.on('dialog', d => { console.log('대화상자:', d.message().slice(0, 80)); d.accept(); });
   await page.goto('https://blog.naver.com/seoeunjin13?Redirect=Write&', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await sleep(10000);
-  const fr = page.frame('mainFrame');
+  let fr = page.frame('mainFrame');
   // 이어쓰기 창: 취소를 누르면 그 글이 지워지므로, 이어쓰기로 열어 내 시험 글인지 확인
   if (await fr.locator('.se-popup-button-cancel').count()) {
     await fr.locator('.se-popup-button-confirm').first().click(); await sleep(4000);
     const t = (await fr.locator('.se-title-text').first().innerText()).trim();
     const body = await fr.evaluate(s => [...document.querySelectorAll('.se-component')].map(p => p.innerText).join(' '), BODY);
-    if (!t.includes(OWN) && !body.includes(OWN) && !['제목', ''].includes(t)) { console.log('중단: 이어쓰기 글이 다른 글 →', t.slice(0, 40)); await b.close(); return; }
+    if (!t.includes(OWN) && !body.includes(OWN) && !['제목', ''].includes(t)) {
+      // 다른 임시저장 글이 열림 → 아무것도 고치지 않고 '새 글쓰기'로 빈 글을 연다 (그 글은 그대로 임시저장 목록에 남음)
+      console.log('이어쓰기 글이 다른 글 → 손대지 않고 새 글쓰기:', t.slice(0, 30));
+      const nw = fr.locator('a, button, li').filter({ hasText: /^새 글쓰기$/ }).first();
+      if (!(await nw.count())) { console.log('중단: 새 글쓰기 버튼 없음'); await b.close(); return; }
+      await nw.evaluate(e => { const a = e.querySelector('a, button') || e; a.click(); }); await sleep(9000);
+      const fr2 = page.frame('mainFrame');
+      const t2 = fr2 ? (await fr2.locator('.se-title-text').first().innerText().catch(() => '?')).trim() : '?';
+      if (!fr2 || !['제목', ''].includes(t2)) { console.log('중단: 새 글 화면이 비어 있지 않음 →', t2.slice(0, 30)); await b.close(); return; }
+      fr = fr2; console.log('새 글 화면 열림');
+    } else {
     console.log('이전 시험 글 → 비우고 다시 입력');
     await fr.locator('.se-title-text').first().click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Delete');
     await fr.locator(BODY).first().click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Delete'); await sleep(1500);
+    }
   }
   const help = fr.locator('.se-help-panel-close-button'); if (await help.count()) { await help.first().click().catch(() => {}); await sleep(500); }
   const countBtn = fr.locator('[data-click-area="tpb*s.count"]');
@@ -87,13 +98,17 @@ const BODY = '.se-component.se-text .se-text-paragraph';
         await fr.locator('button.se-map-toolbar-button, button:has-text("장소")').first().click(); await sleep(2500);
         await fr.locator('input.react-autosuggest__input').first().click();
         await page.keyboard.type(op.query, { delay: 80 }); await sleep(2000);
+        const M = op.match || op.query;   // 결과에서 고를 때 쓸 글자 (가게명이 흔하면 주소 일부)
         const sug = await fr.evaluate(q => { const el = [...document.querySelectorAll('.react-autosuggest__suggestion, li[role="option"]')].find(e => e.offsetParent && e.innerText.replace(/\s+/g, '').includes(q.replace(/\s+/g, ''))); if (!el) return null; el.click(); return el.innerText.slice(0, 40); }, op.query);
         if (!sug) await page.keyboard.press('Enter');
         let added = false;
         for (let t = 0; t < 15 && !added; t++) {
           await sleep(1000);
+          // 2026-11 화면: 결과 항목 .se-place-map-search-result-item 안의 .se-place-add-button
+          const item = fr.locator('.se-place-map-search-result-item').filter({ hasText: M }).first();
+          if (await item.count()) { await item.hover().catch(() => {}); await item.locator('.se-place-add-button').click({ force: true }).catch(() => {}); added = true; break; }
           added = await fr.evaluate(q => { const li = [...document.querySelectorAll('li')].find(e => e.offsetParent && !e.matches('.react-autosuggest__suggestion') && e.innerText.replace(/\s+/g, '').includes(q.replace(/\s+/g, '')));
-            const btn = li && [...li.querySelectorAll('button')].find(b => b.innerText.replace(/\s+/g, '').endsWith('추가')); if (btn) btn.click(); return !!btn; }, op.query);
+            const btn = li && [...li.querySelectorAll('button')].find(b => b.innerText.replace(/\s+/g, '').endsWith('추가')); if (btn) btn.click(); return !!btn; }, M);
         }
         await sleep(1500);
         const conf = fr.locator('.se-popup-button-confirm:visible:not([disabled])'); if (await conf.count()) { await conf.first().click(); await sleep(2500); }
@@ -156,12 +171,21 @@ const BODY = '.se-component.se-text .se-text-paragraph';
     await fr.locator(BODY).first().click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Delete');
     await ctx.storageState({ path: S + '/naver-state.json' }); await b.close(); return;
   }
+  // 카테고리 (사용자 지시 2026-11-12): 매장 방문기 = 먹보여행, 편의점·대형 프랜차이즈 신제품 = 제품리뷰. 발행 설정 창에서 고르고 닫은 뒤 저장
+  {
+    const want = spec.category || '먹보여행';
+    await fr.locator('[data-click-area="tpb.publish"]').click(); await sleep(2500);
+    const got = await require('./category').selectCategory(fr, page, want, S);
+    console.log('카테고리:', got, got === want ? '' : `⚠️ (원하는 값: ${want})`);
+    await fr.locator('[data-click-area="tpb.publish"]').click().catch(() => {}); await sleep(1200);   // 발행하지 않고 창만 닫기
+    if (await fr.locator('[data-click-area="tpb*i.publish"]').isVisible().catch(() => false)) { await page.keyboard.press('Escape'); await sleep(800); }
+  }
   await fr.locator('[data-click-area="tpb.save"]').click(); await sleep(4000);
   console.log(`임시저장 완료: ${before} → ${(await countBtn.innerText()).trim()}`);
 
-  // 예전 시험 글 삭제 (같은 문구가 들어간 글 중 가장 최신 1개만 남김)
+  // 같은 제목의 예전 임시저장 글은 지우지 않고 목록만 알려줌 (2026-11-13: 짧은 문구로 찾다가 다른 글까지 잡힌 적이 있음 → 자동 삭제 중단)
   await countBtn.click(); await sleep(2500);
-  const items = fr.locator('li', { has: fr.locator('button[class*="delete_button"]') }).filter({ hasText: OWN });
+  const items = fr.locator('li', { has: fr.locator('button[class*="article_button"]') }).filter({ hasText: spec.title.slice(0, 25) });
   const info = [];
   for (let i = 0; i < await items.count(); i++) {
     const t = (await items.nth(i).innerText()).replace(/\s+/g, ' ');
@@ -170,11 +194,7 @@ const BODY = '.se-component.se-text .se-text-paragraph';
   }
   info.sort((a, b) => b.key - a.key);
   console.log('같은 제목 임시저장 글:', info.map(x => x.t).join(' / '));
-  for (const x of info.slice(1).sort((a, b) => b.i - a.i)) {
-    await items.nth(x.i).locator('button[class*="delete_button"]').click(); await sleep(1500);
-    const conf = fr.locator('.se-popup-button-confirm, button:has-text("확인")').last(); if (await conf.count() && await conf.isVisible()) { await conf.click(); await sleep(1500); }
-    console.log('예전 시험 글 삭제:', x.t);
-  }
+  if (info.length > 1) console.log('⚠️ 같은 제목 임시저장 글이 여러 개 → 예전 것은 직접 지워주세요');
   await page.screenshot({ path: S + '/shots/v3_saved.png' });
   await ctx.storageState({ path: S + '/naver-state.json' });
   await b.close();

@@ -98,6 +98,7 @@ scripts/
   make_gif.py               영상 → GIF
   decode_drive.py           Drive 다운로드 결과 → HEIC → JPG
 automation/                 네이버 에디터 자동화 (Playwright)
+  retitle.js                제목만 바꾸기: draft(임시저장 글 다시 저장) / post(발행 글 수정 발행), 본문이 달라지면 멈춤
   qr_login.js               QR 로그인 (권장)
   write_draft3.js           임시저장 입력기 (현재 방식)
   fix_draft.js / save_draft.js / resave_and_delete.js / delete_draft.js

@@ -44,6 +44,13 @@ let step = 0;
   await sleep(2000);
   await dump('after_receipt');
   // 영수증으로 가게를 못 찾으면 장소 검색 화면(matched=search)이 뜸 → RR_SEARCH로 검색, RR_SEARCH_MATCH(주소 일부 등)가 들어간 결과를 고름
+  // 후보가 여러 개(matched=multiple)면 RR_PICK_PLACE 글자가 들어간 후보를 고름
+  if (/matched=multiple/.test(page.url())) {
+    const want = process.env.RR_PICK_PLACE || STORE;
+    const cand = page.locator('button').filter({ hasText: want });
+    if ((await cand.count()) !== 1) { console.log(`⚠️ 후보 중 "${want}"가 ${await cand.count()}개 → RR_PICK_PLACE로 좁혀주세요`); await b.close(); process.exit(4); }
+    await cand.first().click(); await sleep(4000); await dump('multi_pick');
+  }
   if (/matched=search/.test(page.url())) {
     if (!process.env.RR_SEARCH) { console.log('⚠️ 가게 자동 인식 실패 → RR_SEARCH="가게 이름" (+ RR_SEARCH_MATCH="주소 일부") 필요'); await b.close(); process.exit(4); }
     const q = page.locator('input[type=text]').first();

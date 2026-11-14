@@ -104,6 +104,9 @@ const BODY = '.se-component.se-text .se-text-paragraph';
         let added = false;
         for (let t = 0; t < 15 && !added; t++) {
           await sleep(1000);
+          // 2026-11 화면: 결과 항목 .se-place-map-search-result-item 안의 .se-place-add-button
+          const item = fr.locator('.se-place-map-search-result-item').filter({ hasText: M }).first();
+          if (await item.count()) { await item.hover().catch(() => {}); await item.locator('.se-place-add-button').click({ force: true }).catch(() => {}); added = true; break; }
           added = await fr.evaluate(q => { const li = [...document.querySelectorAll('li')].find(e => e.offsetParent && !e.matches('.react-autosuggest__suggestion') && e.innerText.replace(/\s+/g, '').includes(q.replace(/\s+/g, '')));
             const btn = li && [...li.querySelectorAll('button')].find(b => b.innerText.replace(/\s+/g, '').endsWith('추가')); if (btn) btn.click(); return !!btn; }, M);
         }

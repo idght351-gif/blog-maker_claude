@@ -34,7 +34,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const title = (await fr.locator('.se-title-text').first().innerText()).trim();
   if (!title.includes(OWN)) { console.log('중단: 열린 글이 대상 글이 아님 →', title.slice(0, 40)); await b.close(); process.exit(2); }
   console.log('열린 글:', title.slice(0, 50));
-  const fb = await page.locator('#mainFrame').boundingBox() || { x: 0, y: 0 };
+  const fb = (await page.locator('#mainFrame').count()) ? (await page.locator('#mainFrame').boundingBox() || { x: 0, y: 0 }) : { x: 0, y: 0 };   // 수정 화면은 iframe 없이 바로 에디터
   const imgCount = () => fr.locator('.se-component.se-image').count();
 
   for (const op of ops) {

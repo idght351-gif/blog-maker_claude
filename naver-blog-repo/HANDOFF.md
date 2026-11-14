@@ -122,3 +122,6 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
 - 드라이브 4_베코: 25개 중 11개만 휴지통으로 옮김 (사용자가 중간에 거부). 나머지 14개와 폴더 이름 변경은 그대로 둠.
 - 로그인 유지: 저장 쿠키가 세션 쿠키였음 → qr_login.js가 '로그인 상태 유지'(nvlong=on)를 넣도록 수정, 로그인 후 NID_AUT 만료 시각을 출력. automation/keep_alive.js로 쿠키 갱신 가능.
 - GIF 점검: bhc 2.6초(원본 3.9초 → 다시 만들 수 있음), 리요리요 2.1초(원본 자체가 2.2초), 악토버 3.8초. 하늘초밥은 영상 16MB라 못 받음. 베코는 영상 4개(9519·9525·9529·9535)를 GIF로 안 넣고 발행됨 → 누락. 그 영상들은 4_베코 정리 때 휴지통으로 감 (드라이브 휴지통에서 복원 가능).
+- 2026-11-14: QR 로그인(로그인 상태 유지 적용, NID_AUT 2027-12-18까지). 하늘초밥·악토버 영수증 리뷰 등록 ✅, 내돈내산 카드 ✅, 썸네일을 카드 위로 다시 정렬 ✅ (`THUMB_REPLACE=1 node automation/add_thumb.js`), 본문 주소·메뉴명 수정 ✅ (`automation/replace_text.js`).
+- 영수증 가게 자동 인식이 안 되면 `RR_SEARCH="가게 이름" RR_SEARCH_MATCH="주소 일부"`로 검색해서 고름.
+- 순서 주의: 내돈내산 카드를 썸네일보다 나중에 넣으면 카드가 맨 위로 감 → 영수증이 늦게 오면 add_nds 후 `THUMB_REPLACE=1`로 썸네일을 다시 맨 위에.

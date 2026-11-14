@@ -36,6 +36,27 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     .filter(x => x.rep).map(x => x.i));
   console.log('앞부분(전):', JSON.stringify(await order()));
 
+  // 0) THUMB_REPLACE=1: 썸네일을 먼저 넣은 뒤 내돈내산 카드를 넣어 [카드, 썸네일] 순서가 된 글 → 카드 아래 옛 썸네일을 지우고 다시 맨 위에 넣음
+  if (process.env.THUMB_REPLACE) {
+    const o = await order();
+    if (o[0] !== 'custom' || o[1] !== 'image') { console.log('중단: [카드, 사진] 순서가 아님 →', JSON.stringify(o)); await b.close(); return; }
+    const src = await fr.locator('.se-component.se-image').first().evaluate(c => ((c.querySelector('img') || {}).src || ''));
+    if (!src.includes(process.env.THUMB_OLD || path.basename(THUMB))) { console.log('중단: 카드 아래 사진이 이 썸네일 파일이 아님 →', src.split('/').pop().slice(0, 50)); await b.close(); return; }
+    const n0 = await fr.locator('.se-component').count();
+    const old = fr.locator('.se-component.se-image').first();
+    await old.scrollIntoViewIfNeeded(); await old.click({ position: { x: 200, y: 200 } }); await sleep(800); await old.hover(); await sleep(500);
+    const ok = await old.evaluate(c => { const d = c.querySelector('.se-image-delete-button'); if (d) { d.click(); return true; } return false; });
+    if (!ok) { const tb = fr.locator('.se-delete-toolbar-button:visible').first(); if (await tb.count()) await tb.click(); }
+    await sleep(1500);
+    if ((await fr.locator('.se-component').count()) === n0) {   // 버튼이 안 먹으면: 사진 선택 상태에서 도구막대 삭제 또는 Delete 키
+      await old.click({ position: { x: 200, y: 200 } }); await sleep(600);
+      const tb = fr.locator('.se-delete-toolbar-button:visible').first();
+      if (await tb.count()) await tb.click(); else await page.keyboard.press('Delete');
+      await sleep(1500);
+    }
+    if ((await fr.locator('.se-component').count()) !== n0 - 1) { console.log('중단: 옛 썸네일 삭제 실패', JSON.stringify(await order())); await page.screenshot({ path: S + '/shots/thumb_del_fail.png' }); await b.close(); return; }
+    console.log('옛 썸네일 삭제 후:', JSON.stringify(await order()));
+  }
   // 1) 제목 끝에서 Enter → 맨 위에 빈 줄 → 그 자리에 사진 넣기 (이미 사진·카드 순서면 건너뜀: 자동 저장으로 남은 경우)
   const pre = await order();
   if (pre[0] === 'image' && pre[1] === 'custom') console.log('맨 위에 이미 사진이 있음 → 넣기 건너뜀');   // (카드 없는 글은 아래 비교로 판단)
@@ -61,8 +82,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await first.scrollIntoViewIfNeeded(); await first.hover(); await sleep(800);
   const repBtns = await first.evaluate(c => [...c.querySelectorAll('button, [role=button]')].map(e => `${e.className} | ${e.innerText.trim()} | ${e.getAttribute('aria-pressed')}`));
   console.log('첫 사진 버튼:', JSON.stringify(repBtns));
-  const rep = first.locator('button').filter({ hasText: '대표' }).first();
-  if (await rep.count()) { await rep.click({ force: true }); await sleep(1000); }
+  for (let t = 0; t < 5; t++) {   // 막 올린 사진은 처리 중이라 '대표' 버튼이 늦게 생김 → 선택·마우스 올리기를 반복
+    const rep = first.locator('button.se-set-rep-image-button, button').filter({ hasText: '대표' }).first();
+    if (await rep.count()) { await rep.click({ force: true }); await sleep(1200);
+      if (await first.locator('.se-set-rep-image-button.se-is-selected').count()) break; }
+    await first.click({ position: { x: 200, y: 150 } }).catch(() => {}); await first.hover(); await sleep(2500);
+  }
   await page.screenshot({ path: S + '/shots/thumb_2_rep.png' });
   const repState = await fr.evaluate(() => [...document.querySelectorAll('.se-component.se-image')].slice(0, 30).map((c, i) => {
     const btn = [...c.querySelectorAll('button')].find(e => /대표/.test(e.innerText)); return btn ? `${i}:${btn.className}` : null; }).filter(Boolean));

@@ -43,6 +43,18 @@ let step = 0;
   for (let i = 0; i < 20 && /status=scanning/.test(page.url()); i++) await sleep(2000);   // 인식이 늦으면 최대 40초 더 기다림
   await sleep(2000);
   await dump('after_receipt');
+  // 영수증으로 가게를 못 찾으면 장소 검색 화면(matched=search)이 뜸 → RR_SEARCH로 검색, RR_SEARCH_MATCH(주소 일부 등)가 들어간 결과를 고름
+  if (/matched=search/.test(page.url())) {
+    if (!process.env.RR_SEARCH) { console.log('⚠️ 가게 자동 인식 실패 → RR_SEARCH="가게 이름" (+ RR_SEARCH_MATCH="주소 일부") 필요'); await b.close(); process.exit(4); }
+    const q = page.locator('input[type=text]').first();
+    await q.click(); await q.fill(process.env.RR_SEARCH); await q.press('Enter'); await sleep(4000);
+    await dump('search');
+    const want = process.env.RR_SEARCH_MATCH || process.env.RR_SEARCH;
+    const hit = page.locator('li, button, a, [role=button]').filter({ hasText: want }).last();
+    if (!(await hit.count())) { console.log(`⚠️ 검색 결과에 "${want}"가 없음`); await b.close(); process.exit(4); }
+    await hit.click(); await sleep(4000);
+    await dump('search_pick');
+  }
   const body = await page.innerText('body');
   if (!body.replace(/\s+/g, '').toLowerCase().includes(STORE.replace(/\s+/g, '').toLowerCase())) {   // 대소문자 무시 (BHC/bhc)
     console.log(`⚠️ 화면에서 "${STORE}"를 찾지 못했습니다. 인식 결과를 확인하세요.`);
@@ -57,7 +69,13 @@ let step = 0;
   }
   // 인식된 장소가 맞으면 '이 장소가 맞아요' (가게 이름 확인은 위에서 끝남)
   const yes = page.locator('button').filter({ hasText: '이 장소가 맞아요' });
-  if (await yes.count()) { await yes.first().click(); await sleep(4000); await dump('place_ok'); console.log('RESUME_URL', page.url()); }
+  if (await yes.count()) {
+    await yes.first().click(); await sleep(4000);
+    // 검색으로 고른 장소는 '맞아요' 뒤에 '다음 단계로 이동' 확인이 한 번 더 뜸
+    const next = page.locator('button').filter({ hasText: '다음 단계로 이동' });
+    if (await next.count() && await next.first().isVisible()) { await next.first().click(); await sleep(5000); }
+    await dump('place_ok'); console.log('RESUME_URL', page.url());
+  }
   }
   // 이후 단계는 화면 구조를 확인하며 채워 나간다 (아래 STEPS).
   // 앱 설치 안내가 뜨면 모바일 웹으로 계속

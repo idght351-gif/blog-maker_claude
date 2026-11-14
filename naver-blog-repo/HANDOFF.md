@@ -125,3 +125,6 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
 - 2026-11-14: QR 로그인(로그인 상태 유지 적용, NID_AUT 2027-12-18까지). 하늘초밥·악토버 영수증 리뷰 등록 ✅, 내돈내산 카드 ✅, 썸네일을 카드 위로 다시 정렬 ✅ (`THUMB_REPLACE=1 node automation/add_thumb.js`), 본문 주소·메뉴명 수정 ✅ (`automation/replace_text.js`).
 - 영수증 가게 자동 인식이 안 되면 `RR_SEARCH="가게 이름" RR_SEARCH_MATCH="주소 일부"`로 검색해서 고름.
 - 순서 주의: 내돈내산 카드를 썸네일보다 나중에 넣으면 카드가 맨 위로 감 → 영수증이 늦게 오면 add_nds 후 `THUMB_REPLACE=1`로 썸네일을 다시 맨 위에.
+- 2026-11-14 GIF 추가: 하늘초밥(판초밥 4.4초), bhc(매장 3.9초로 교체 + 치킨 4.5초) 임시저장 글에 넣음 (`automation/insert_image.js`).
+- 리요리요는 08:30 사용자 발행됨 → GIF 2개(꿍치 9688, 아메리카노 9686, photos/liyo/blur/)는 발행 글 수정이 필요해서 사용자 확인 대기 (`POST_LOGNO=224476544569 node automation/insert_image.js 리요리요 '[...]'`).
+- 주의: 실패한 자동화도 에디터 자동 저장으로 중간 변경이 남을 수 있음 (bhc 옛 GIF가 이렇게 지워졌고, 새 GIF로 대체함).

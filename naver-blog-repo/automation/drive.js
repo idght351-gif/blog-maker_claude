@@ -20,10 +20,11 @@
 //   node automation/drive.js feedback <번호>         피드백 받은 날 기록 → 3일 뒤 정리 예약
 //   node automation/drive.js cleanup                예약일이 지난 폴더 정리 (발행 확인된 것만)
 //
-// 필요한 파일 (.state/ 는 깃에 올리지 않음)
-//   .state/google-credentials.json   구글 클라우드 콘솔 → OAuth 클라이언트(데스크톱 앱) → JSON
-//   .state/google-token.json         auth 가 만듦
-//   .state/drive_jobs.json           번호별 작업 기록
+// 구글 연결 (둘 중 하나)
+//   클라우드·폰 세션: 환경 변수 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_REFRESH_TOKEN
+//   PC: .state/google-credentials.json (OAuth 클라이언트 JSON) + .state/google-token.json (auth 가 만듦)
+// 작업 기록(가게·종류·정리 예정일)은 드라이브 폴더의 '설명'에 JSON으로 저장 → 어느 기기에서 실행해도 같음.
+// 폴더를 비울 때 폴더째 휴지통에 넣고 새로 만들므로 기록도 같이 사라짐.
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -32,7 +33,6 @@ const { execFile } = require('child_process');
 const S = process.env.NAVER_STATE_DIR || path.join(__dirname, '..', '.state');
 const CRED = path.join(S, 'google-credentials.json');
 const TOKEN = path.join(S, 'google-token.json');
-const JOBS = path.join(S, 'drive_jobs.json');
 const BLOG_ID = 'seoeunjin13';
 const EMPTY = '빈폴더';
 const KEEP_DAYS = 3;
@@ -44,7 +44,9 @@ const readJson = (f, d) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'ut
 const writeJson = (f, o) => fs.writeFileSync(f, JSON.stringify(o, null, 2));
 const log = (...a) => console.log(...a);
 
+const ENV_REFRESH = process.env.GOOGLE_REFRESH_TOKEN;
 function client() {
+  if (ENV_REFRESH) return { client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET };
   if (!fs.existsSync(CRED)) throw new Error(`${CRED} 가 없습니다. README의 "구글 드라이브 연결"을 따라 OAuth 클라이언트 JSON을 저장하세요.`);
   const c = readJson(CRED);
   return c.installed || c.web;
@@ -83,7 +85,15 @@ async function tokenRequest(body) {
   return j;
 }
 
+let memToken;
 async function accessToken() {
+  if (ENV_REFRESH) {   // 클라우드: 파일에 저장하지 않고 실행 중에만 보관
+    if (!memToken || Date.now() > memToken.expires_at) {
+      const c = client();
+      memToken = await tokenRequest({ refresh_token: ENV_REFRESH, client_id: c.client_id, client_secret: c.client_secret, grant_type: 'refresh_token' });
+    }
+    return memToken.access_token;
+  }
   let t = readJson(TOKEN);
   if (!t) throw new Error('먼저 "node automation/drive.js auth" 를 실행하세요.');
   if (Date.now() > t.expires_at) {
@@ -108,7 +118,7 @@ async function list(q) {
   const out = []; let page;
   do {
     const j = await api('GET', '/files?' + new URLSearchParams({
-      q: q + ' and trashed = false', pageSize: '1000', fields: 'nextPageToken, files(id,name,mimeType,size,createdTime)',
+      q: q + ' and trashed = false', pageSize: '1000', fields: 'nextPageToken, files(id,name,mimeType,size,createdTime,description)',
       ...(page ? { pageToken: page } : {}),
     }));
     out.push(...j.files); page = j.nextPageToken;
@@ -118,6 +128,9 @@ async function list(q) {
 const folders = () => list(`mimeType = '${FOLDER}' and 'root' in parents`);
 const filesIn = id => list(`'${id}' in parents and mimeType != '${FOLDER}'`);
 const rename = (id, name) => api('PATCH', `/files/${id}`, { name });
+// 작업 기록 = 폴더 설명(JSON)
+const jobGet = f => { try { return JSON.parse(f.description || 'null'); } catch { return null; } };
+const jobSet = (f, j) => api('PATCH', `/files/${f.id}`, { description: JSON.stringify(j) });
 async function findFolder(name) {
   const f = (await folders()).filter(x => x.name === name);
   if (!f.length) throw new Error(`폴더 "${name}" 를 찾지 못했습니다.`);
@@ -137,7 +150,8 @@ async function byNum(n) {
   if (all.length > 1) throw new Error(`${n}번 폴더가 ${all.length}개 있습니다: ${all.map(f => f.name).join(', ')}`);
   return all[0];
 }
-const jobOf = (jobs, n) => jobs.find(j => j.n === Number(n) && !j.cleaned);
+// 기록이 없으면(예전에 PC에서 시작한 폴더 등) 폴더 이름으로 만든다
+const jobOrNew = f => jobGet(f) || { store: f.rest, kind: 'post' };
 
 async function init(count = 5) {
   const have = await numbered();
@@ -149,11 +163,10 @@ async function init(count = 5) {
 }
 
 async function status() {
-  const jobs = readJson(JOBS, []);
   const all = await numbered();
   for (const n of Object.keys(all).map(Number).sort((a, b) => a - b)) for (const f of all[n]) {
     const cnt = (await filesIn(f.id)).length;
-    const j = jobOf(jobs, n);
+    const j = jobGet(f);
     const st = f.rest === EMPTY ? '비어 있음'
       : j && j.kind === 'receipt' ? (j.deleteAfter ? `영수증 등록 완료 · 정리 예정 ${j.deleteAfter.slice(0, 10)}` : '영수증 등록 · 피드백 기다림')
       : j && j.deleteAfter ? `임시저장 완료 · 정리 예정 ${j.deleteAfter.slice(0, 10)}` : '작성 중';
@@ -167,10 +180,7 @@ async function claim(n, store, kind = 'post') {
   if (f.rest !== EMPTY) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
   const cnt = (await filesIn(f.id)).length;
   if (!cnt) throw new Error(`${f.name} 에 사진이 없습니다.`);
-  const jobs = readJson(JOBS, []);
-  jobs.push({ n: Number(n), store, kind, folderId: f.id, claimedAt: new Date().toISOString() });
-  writeJson(JOBS, jobs);
-  await rename(f.id, `${n}_${store}`);
+  await api('PATCH', `/files/${f.id}`, { name: `${n}_${store}`, description: JSON.stringify({ store, kind, claimedAt: new Date().toISOString() }) });
   log(`${f.name} → ${n}_${store} (파일 ${cnt}개)`);
 }
 
@@ -189,24 +199,24 @@ async function download(n, dest) {
 }
 
 async function done(n, titleHint) {
-  const jobs = readJson(JOBS, []);
-  const j = jobOf(jobs, n);
-  if (!j) throw new Error(`${n}번 작성 기록이 없습니다. (claim 을 먼저 했는지 확인)`);
+  const f = await byNum(n);
+  if (f.rest === EMPTY) throw new Error(`${f.name} 은 빈 폴더입니다. (claim 을 먼저 했는지 확인)`);
+  const j = jobOrNew(f);
   j.savedAt = new Date().toISOString();
   j.deleteAfter = new Date(Date.now() + KEEP_DAYS * 86400e3).toISOString();
   j.titleHint = titleHint || j.store;
-  writeJson(JOBS, jobs);
+  await jobSet(f, j);
   log(`${n}_${j.store}: 임시저장 완료 기록 · ${j.deleteAfter.slice(0, 10)} 이후 발행이 확인되면 자동으로 비웁니다.`);
 }
 
 // 영수증만 있던 폴더: 사용자가 피드백을 준 날로부터 3일 뒤에 비운다
 async function feedback(n) {
-  const jobs = readJson(JOBS, []);
-  const j = jobOf(jobs, n);
-  if (!j) throw new Error(`${n}번 작업 기록이 없습니다.`);
+  const f = await byNum(n);
+  if (f.rest === EMPTY) throw new Error(`${f.name} 은 빈 폴더입니다.`);
+  const j = jobOrNew(f);
   j.feedbackAt = new Date().toISOString();
   j.deleteAfter = new Date(Date.now() + KEEP_DAYS * 86400e3).toISOString();
-  writeJson(JOBS, jobs);
+  await jobSet(f, j);
   log(`${n}_${j.store}: 피드백 받음 · ${j.deleteAfter.slice(0, 10)} 이후 자동으로 비웁니다.`);
 }
 
@@ -220,33 +230,46 @@ async function published(hint) {
   return titles.find(t => norm(t).includes(norm(hint)));
 }
 
+// 공유 복사: 소유자 말고 사람·그룹 공유를 같은 권한으로 (알림 메일은 보내지 않음)
+async function copyShares(fromId, toId) {
+  const { permissions = [] } = await api('GET', `/files/${fromId}/permissions?fields=permissions(type,role,emailAddress)`);
+  const out = [];
+  for (const p of permissions.filter(x => x.role !== 'owner' && x.emailAddress && (x.type === 'user' || x.type === 'group'))) {
+    await api('POST', `/files/${toId}/permissions?sendNotificationEmail=false`, { type: p.type, role: p.role, emailAddress: p.emailAddress });
+    out.push(p.emailAddress);
+  }
+  return out;
+}
+
 async function clear(n, force) {
   const f = await byNum(n);
   if (f.rest === EMPTY) { log(`${f.name}: 이미 빈 폴더`); return; }
-  const jobs = readJson(JOBS, []);
-  const j = jobOf(jobs, n);
+  const j = jobGet(f);
   const hint = (j && j.titleHint) || f.rest;
   if (j && j.kind === 'receipt') force = true;   // 이미 발행된 예전 글 → 발행 확인 생략
   const t = force ? null : await published(hint);
   if (!t && !force) { log(`${f.name}: 블로그에서 "${hint}" 발행 글을 아직 못 찾았어요 → 지우지 않음 (발행 직후면 몇 분 뒤 다시)`); return false; }
   log(`${f.name}: 발행 확인 "${t || '(확인 생략)'}"`);
-  const files = await filesIn(f.id);
-  for (const x of files) await api('PATCH', `/files/${x.id}`, { trashed: true });   // 휴지통으로 (30일 안에 복구 가능)
-  await rename(f.id, `${n}_${EMPTY}`);
-  if (j) { j.cleaned = new Date().toISOString(); writeJson(JOBS, jobs); }
-  log(`${f.name}: 사진·영상 ${files.length}개 휴지통으로 → ${n}_${EMPTY}`);
+  // 파일을 하나씩 지우지 않고 폴더째 휴지통으로 (안의 사진·영상도 같이, 30일 안에 복구 가능)
+  // → 같은 번호로 빈 폴더 새로 만들고, 예전 폴더의 공유(예: 은똥 편집자)를 그대로 옮김
+  const nf = await api('POST', '/files', { name: `${n}_${EMPTY}`, mimeType: FOLDER, parents: ['root'] });
+  const shared = await copyShares(f.id, nf.id);
+  await api('PATCH', `/files/${f.id}`, { trashed: true });
+  log(`${f.name}: 폴더째 휴지통으로 → 새 ${n}_${EMPTY}${shared.length ? ' (공유: ' + shared.join(', ') + ')' : ''}`);
   return true;
 }
 
 async function cleanup() {
-  const jobs = readJson(JOBS, []);
-  for (const j of jobs.filter(x => x.deleteAfter && !x.cleaned)) {
-    if (Date.now() < Date.parse(j.deleteAfter)) { log(`${j.n}_${j.store}: 아직 ${j.deleteAfter.slice(0, 10)} 전`); continue; }
-    await clear(j.n, false);
+  const all = await numbered();
+  for (const n of Object.keys(all).map(Number).sort((a, b) => a - b)) for (const f of all[n]) {
+    const j = jobGet(f);
+    if (f.rest === EMPTY || !j || !j.deleteAfter) continue;
+    if (Date.now() < Date.parse(j.deleteAfter)) { log(`${f.name}: 아직 ${j.deleteAfter.slice(0, 10)} 전`); continue; }
+    await clear(n, false);
   }
 }
 
-module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered };
+module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered, copyShares };
 if (require.main !== module) return;
 const [cmd, a, b] = process.argv.slice(2);
 const run = {

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node naver-blog-repo/automation/drive.js:*)",
+      "Bash(node automation/drive.js:*)",
+      "mcp__claude_ai_Google_Drive__search_files",
+      "mcp__claude_ai_Google_Drive__trash_file",
+      "mcp__claude_ai_Google_Drive__create_file"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR/naver-blog-repo\" 2>/dev/null && [ -n \"$GOOGLE_REFRESH_TOKEN\" ] && node automation/drive.js cleanup 2>&1 | tail -5 || true",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

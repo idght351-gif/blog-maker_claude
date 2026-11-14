@@ -12,6 +12,12 @@ $tree = git write-tree
 $env:GIT_INDEX_FILE = ".git/index.prefixed"
 git read-tree --empty
 git read-tree --prefix=naver-blog-repo/ $tree
+# repo_root/ 안의 파일은 저장소 맨 위에 올림 (폰 클라우드 세션이 읽는 CLAUDE.md, .claude/settings.json)
+Get-ChildItem repo_root -Recurse -File -Force | ForEach-Object {
+  $rel = $_.FullName.Substring((Resolve-Path repo_root).Path.Length + 1).Replace('\', '/')
+  $h = git hash-object -w $_.FullName
+  git update-index --add --cacheinfo "100644,$h,$rel"
+}
 $prefixed = git write-tree
 Remove-Item Env:GIT_INDEX_FILE; Remove-Item .git/index.prefixed
 if ($prefixed -eq (git rev-parse "origin/main^{tree}")) { Write-Output "바뀐 것이 없습니다."; exit 0 }

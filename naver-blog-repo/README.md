@@ -50,7 +50,9 @@ node automation/qr_login.js
 | **"2번 사진 업로드"** | 사진을 보고 가게 이름 판단 → `drive.js claim 2 <가게>` → `drive.js download 2 photos/<가게>/raw` → **바로 글쓰기 시작** → 영수증 있으면 영수증 리뷰 등록(확인 없이) → 임시저장 → 내돈내산 카드 → `drive.js done 2` | `2_빈폴더` → `2_<가게>` |
 | **"3번 사진 업로드"인데 폴더에 영수증만 있을 때** | 영수증에서 가게 확인 → `drive.js receipt 3 <가게>` → 영수증 리뷰 등록(`receipt_review.js --submit`) → `node automation/edit_nds.js <가게>` (발행된 예전 글을 찾아 **썸네일 바로 아래**에 영수증 인증 카드 추가 → **수정 발행**) → "등록했어요" 보고 | `3_빈폴더` → `3_<가게>` |
 | 영수증 등록 보고에 사용자가 피드백 | `drive.js feedback 3` → **피드백 받은 날부터 3일 뒤** 자동으로 비움 | → `3_빈폴더` |
-| **"1번 블로그 등록"** | `drive.js clear 1` — 블로그 RSS에서 발행 확인 → 사진·영상 휴지통 | `1_<가게>` → `1_빈폴더` |
+| **"1번 블로그 등록"** | `drive.js clear 1` — 블로그 RSS에서 발행 확인 → 같은 번호로 빈 폴더 새로 만들고 공유(은똥) 복사 → 예전 폴더째 휴지통 | `1_<가게>` → `1_빈폴더` |
+| (폰 클라우드 세션) | 클라우드 환경 변수 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REFRESH_TOKEN` 이 있으면 PC와 똑같이 `drive.js` 사용. 작업 기록은 드라이브 폴더 설명에 저장. 저장소 맨 위 `CLAUDE.md`·`.claude/settings.json`은 `repo_root/`에서 관리 (`push_github.ps1`이 맨 위로 올림) | |
+| (클라우드·폰 세션에서 drive.js를 못 쓸 때) | 드라이브 커넥터로 **파일 목록 조회·파일별 삭제 금지**. `search_files`로 번호 폴더 ID만 찾고 → `trash_file`(폴더 ID 한 번) → `create_file`(title `N_빈폴더`, contentMimeType `application/vnd.google-apps.folder`). 호출 3번으로 끝 | |
 | (말 안 해도) 임시저장 3일 뒤부터 매일 10시 | `drive.js cleanup` — 발행 확인된 것만 위와 같이 정리 | |
 
 - 발행이 안 보이면 지우지 않습니다. 지운 파일은 드라이브 휴지통에서 30일 안에 복구할 수 있습니다.

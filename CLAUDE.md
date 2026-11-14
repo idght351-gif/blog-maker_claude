@@ -12,3 +12,6 @@
 - 임시저장 끝 → `drive.js done N`, 영수증 등록 피드백 → `drive.js feedback N`. 기록은 드라이브 폴더 설명에 저장돼서 세션이 바뀌어도 남는다.
 - 세션 시작 때 `drive.js cleanup`이 자동 실행된다 (정리 예정일이 지났고 발행이 확인된 폴더만 비움).
 - drive.js가 토큰·환경 변수 오류를 내면, 커넥터는 폴더 단위로만 쓴다: `search_files`로 번호 폴더 ID 찾기 → `trash_file`(폴더 ID) → `create_file`(title `N_빈폴더`, contentMimeType `application/vnd.google-apps.folder`) → 예전 폴더의 공유 대상을 `get_file_permissions`로 확인해 새 폴더에 같은 권한으로 공유 (메일 주소를 파일에 적지 않기). 그리고 사용자에게 환경 변수 확인을 부탁한다.
+
+## 협찬(체험단) 글
+- 폴더에 체험단 포스팅 안내 캡처가 있으면 협찬 글. 필수 키워드 1개는 제목에, 선택 키워드는 몇 개만 본문·해시태그에. 영수증 리뷰·내돈내산 카드 없음. 글 맨 위에 체험단 URL 링크(사용자가 알려 줌, 없으면 `[광고 링크 필요]` 두고 발행 전에 물어보기). 자세한 건 STYLE.md 18번.

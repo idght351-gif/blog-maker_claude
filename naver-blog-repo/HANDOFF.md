@@ -133,3 +133,19 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
 - 7 더가든키친(신사역 리버사이드호텔 뷔페, 7/31 방문): 임시저장 + 썸네일 ✅. 영수증 인증은 됐는데 리뷰 작성 화면을 못 찾음(같은 영수증 재업로드 시 경고) → 앱에서 리뷰 쓰기 후 add_nds.js 필요.
 - write_draft3 장소: 결과 항목 .se-place-map-search-result-item 안의 .se-place-add-button을 직접 클릭하도록 수정.
 - 2026-11-14 (3): 리요리요·베코·더가든키친 발행 확인. 드라이브 2·4번 폴더 비우고 '2_빈폴더'·'4_빈폴더'로 변경 ✅. 7번 폴더 파일은 다른 계정(사진 올린 계정) 소유라 휴지통 이동 권한 없음 → 그 계정에서 직접 삭제 필요. 베코는 수정하지 않기로 함(사용자).
+- 2026-11-17: 1번 일쩜오플로어(연남동 롤크레이프) 임시저장 + 영수증 리뷰 + 내돈내산 카드 + 썸네일 ✅. GIF 2개.
+- 영수증 '맞아요' 후 화면이 안 넘어가도 방문은 등록됨 → 같은 영수증 재업로드 금지(경고). MY플레이스 타임라인의 '리뷰 쓰기'가 새 창으로 리뷰 주소를 엶 → 그 주소를 RR_URL로 사용.
+- 빈폴더 정리는 '폴더째 휴지통 → 새 빈폴더 → 사진 올리는 계정에 편집 공유' 방식 사용 중.
+- 2026-11-17: 드라이브 1번 폴더 이름 '1_일쩜오플로어'로 변경. STYLE.md에 '가격은 영수증 최종', '임시저장 후 폴더 이름 변경', '발행 후 빈폴더 처리' 규칙 추가.
+
+## 새 세션에서 이어하기 (2026-11-17 정리)
+- 첫 메시지: "HANDOFF.md 읽고 이어서 진행해". 작업 규칙은 STYLE.md.
+- 네이버 로그인은 저장소에 없음 → 첫 작업 전 `HEADED= node automation/qr_login.js`로 QR 1번 (로그인 상태 유지 적용됨). 실행 환경 변수: `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt NODE_NO_WARNINGS=1 NODE_PATH=$(npm root -g)`.
+- 필요한 프로그램: python3 + pillow, pillow_heif, opencv-python-headless, numpy, beautifulsoup4 / ffmpeg / 전역 playwright. 없으면 `pip install pillow pillow_heif opencv-python-headless numpy beautifulsoup4`.
+- 도우미 스크립트 (예전엔 임시 폴더에 있던 것):
+  - `python3 scripts/research.py "<가게 검색어>" data/research/<가게>` : 상위 블로그 10개 수집
+  - `node automation/probes/probe_review.js <리뷰주소>` : 영수증 리뷰 선택지 확인
+  - `node automation/probes/probe_place_results.js "<가게명>"` : 블로그 장소 검색 결과 확인 (저장 안 함)
+  - `node automation/probes/find_review_url.js "<가게명>"` : MY플레이스 타임라인에서 '리뷰 쓰기' 주소 찾기 (NEWPAGE로 출력)
+  - `node automation/probes/list_drafts.js` : 임시저장 목록
+- 1번 일쩜오플로어: 임시저장 완료, 발행 대기. 드라이브 폴더는 '1_일쩜오플로어'.

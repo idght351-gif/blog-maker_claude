@@ -148,4 +148,5 @@ pip install pillow-heif opencv-python-headless beautifulsoup4
   - `node automation/probes/probe_place_results.js "<가게명>"` : 블로그 장소 검색 결과 확인 (저장 안 함)
   - `node automation/probes/find_review_url.js "<가게명>"` : MY플레이스 타임라인에서 '리뷰 쓰기' 주소 찾기 (NEWPAGE로 출력)
   - `node automation/probes/list_drafts.js` : 임시저장 목록
-- 1번 일쩜오플로어: 임시저장 완료, 발행 대기. 드라이브 폴더는 '1_일쩜오플로어'.
+- 1번 일쩜오플로어: 발행 확인(11/18 08:16, logNo 224481502820) → drive.js clear 1로 1_빈폴더 새로 만듦 ✅
+- 11/17 상태: 2_빈폴더(28)·4_빈폴더(29)·7_빈폴더(41)·8_빈폴더(37)에 파일이 남아 있음 — 예전 남은 파일인지 새 사진인지 사용자 확인 필요

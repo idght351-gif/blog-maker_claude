@@ -1,7 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 U="/root/.claude/uploads/de66fc0b-3a6e-5802-9d8c-596b6428ddeb/"
 W,H=1200,630; INK=(28,40,58); YEL=(255,222,110); WHITE=(255,255,255); PINK=(242,140,160)
-F=lambda w,s: ImageFont.truetype(f""+__import__('os').path.dirname(__file__)+"/../fonts/Pretendard-{w}.otf",s)
+import os; FONT_DIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","fonts")
+F=lambda w,s: ImageFont.truetype(os.path.join(FONT_DIR,f"Pretendard-{w}.otf"),s)
 def base():
     bg=Image.new("RGB",(W,H)); d=ImageDraw.Draw(bg)
     for y in range(H):

@@ -117,6 +117,7 @@ checks += [
     ("[AI티] 느낌표 문장 15% 이상", r_excl >= 0.15, f"{r_excl:.0%}"),
     ("[AI티] 정말·진짜·완전·엄청 등 6회 이상", n_int >= 6, f"{n_int}회"),
     ("[템플릿] T1~T6 지정, 최근 2개와 다름", bool(re.fullmatch(r"T[1-6]", TID)) and TID not in _recent, f"{TID or '없음'} / 최근 {_recent}"),
+    ("광고 티 특수문자(⭕❌★■📢) 없음", not re.search("[⭕❌★■📢]", body + TITLE), ", ".join(sorted(set(re.findall("[⭕❌★■📢]", body + TITLE)))) or "OK"),
     ("[AI티] 템플릿 문구 없음", not tmpl, ", ".join(tmpl) or "OK"),
     ("빨강·초록 강조 2~15자", not long_spans, ", ".join(s[:12] for s in long_spans[:3]) or "OK"),
 ]

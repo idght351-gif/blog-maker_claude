@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 U="/root/.claude/uploads/de66fc0b-3a6e-5802-9d8c-596b6428ddeb/"
 W,H=1200,630; INK=(28,40,58); YEL=(255,222,110); WHITE=(255,255,255); PINK=(242,140,160)
-F=lambda w,s: ImageFont.truetype(f"fonts/Pretendard-{w}.otf",s)
+F=lambda w,s: ImageFont.truetype(f""+__import__('os').path.dirname(__file__)+"/../fonts/Pretendard-{w}.otf",s)
 def base():
     bg=Image.new("RGB",(W,H)); d=ImageDraw.Draw(bg)
     for y in range(H):
@@ -24,13 +24,17 @@ def chip(d,x,y,big,small):
     d.rounded_rectangle([x,y,x+w,y+96],18,fill=WHITE); d.text((x+20,y+12),small,font=F("SemiBold",20),fill=(90,100,115)); d.text((x+20,y+42),big,font=F("Bold",34),fill=INK); return x+w+14
 def tag(d): d.text((W-150,H-34),"디자인 시안",font=F("Regular",16),fill=(90,110,130))
 
-# A 분석형
+# A 분석형 (핵심 3칸 크게: 칸 폭 균등, 값 60px)
+def chips_big(d,y,items,x0=66,w=212,gap=14,h=150):
+    for i,(big,small) in enumerate(items):
+        x=x0+i*(w+gap); d.rounded_rectangle([x,y,x+w,y+h],22,fill=WHITE)
+        d.text((x+w/2,y+40),small,font=F("SemiBold",28),fill=(90,100,115),anchor="mm")
+        d.text((x+w/2,y+100),big,font=F("Bold",60),fill=INK,anchor="mm")
 bg=base(); char(bg,"2375b749-image.png",760); d=ImageDraw.Draw(bg)
-pill(d,(78,70),"ETF 완전분석",F("Bold",26))
-d.text((70,120),"SCHD",font=F("Bold",170),fill=INK)
-hl(d,(78,330),"배당 ETF의 정석일까?",F("Bold",58))
-x=72
-for big,small in [("0.06%","총보수"),("분기","배당 주기"),("30년","시뮬레이션")]: x=chip(d,x,450,big,small)
+pill(d,(78,58),"ETF 완전분석",F("Bold",26))
+d.text((70,100),"SCHD",font=F("Bold",160),fill=INK)
+hl(d,(78,300),"배당 ETF의 정석일까?",F("Bold",56))
+chips_big(d,430,[("0.06%","총보수"),("분기","배당"),("30년","시뮬레이션")])
 tag(d); bg.save("thumb_A.png")
 
 # B 숫자형

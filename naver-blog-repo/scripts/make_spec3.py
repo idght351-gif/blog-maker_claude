@@ -10,7 +10,7 @@ m = importlib.util.module_from_spec(spec_); spec_.loader.exec_module(m)
 UP, OUT = Path(sys.argv[2]), Path(sys.argv[3])
 COL = {"r": "#f12f22", "p": "#f02c8c", "g": "#00a350", "bl": "#0076c8", "o": "#ff9c23"}
 EMPTY = "<p><br></p>"
-QUOTE = {"q": 1, "bubble": 3, "h": 4}   # 인용구 스타일 번호 (4 = 밑줄 인용구)
+QUOTE = {"q": 1, "bubble": 3, "h": 4, "hq": 1, "hl": 2}   # 인용구 스타일 번호 (1 기본 따옴표, 2 세로선, 3 말풍선, 4 밑줄). hq·hl = 소제목용 (템플릿, STYLE '글 템플릿')
 
 
 def rich(t):
@@ -70,9 +70,10 @@ for blk in m.B:
         if o.get("c"): prev = k; continue
         rows = []
         for line in blk[1].split("\n"):
+            if o.get("keep"): rows.append(line); continue   # 템플릿: 문장 여러 개를 한 문단에 이어 쓰기
             rows += sentences(line) if not re.match(r"^\W", m.plain(line)[:1]) or len(m.plain(line)) > 40 else [line]
         add_html("".join(para(rich(r), o.get("b")) for r in rows), [m.plain(r) for r in rows])
-        label = re.match(r"^(⭕|❌|🔄|🎯)", m.plain(blk[1])) and len(m.plain(blk[1])) < 30 and "\n" not in blk[1]
+        label = re.match(r"^(⭕|❌|🔄|🎯|👍|💦|💖|📌|✨)", m.plain(blk[1])) and len(m.plain(blk[1])) < 30 and "\n" not in blk[1]
         if prev != "img" and not label: add_html(EMPTY, [])   # 좋았던 점 같은 제목 줄 바로 아래는 띄우지 않음
     elif k == "menu":
         # 메뉴 묶음: 카테고리(굵게) 바로 아래 메뉴들을 빈 줄 없이 붙이고, 묶음 뒤에만 빈 줄 1개 (사용자 지시 2026-11-12)
@@ -81,12 +82,14 @@ for blk in m.B:
         k = "p"   # 다음 사진 앞 간격은 일반 문단과 같게
     elif k in QUOTE:
         txt = blk[1]
-        if k == "h": add_html(EMPTY * 4, [])               # 소제목 앞 빈 줄 (1줄은 인용구가 차지)
+        if k in ("h", "hq", "hl"): add_html(EMPTY * 4, [])   # 소제목 앞 빈 줄 (1줄은 인용구가 차지)
         else: add_html(EMPTY * 2, [])
-        parts = [x.strip() for x in txt.split("/")] if k == "q" else [txt]
+        parts = [x.strip() for x in txt.split("/")] if k in ("q", "hq") else [txt]
         ops.append({"t": "quote", "style": QUOTE[k], "center": True,
                     "html": "".join(para(rich(x), k == "h", 19) for x in parts)})   # 인용구 글자 19
         lines.extend(m.plain(x) for x in parts)
+    elif k == "hb":   # 인용구 없는 굵은 글씨 소제목 (템플릿)
+        add_html(EMPTY * 4 + para(rich(blk[1]), True) + EMPTY, [m.plain(blk[1])])
     elif k == "place":
         add_html(EMPTY * 2, [])
         ops.append({"t": "place", "query": blk[1], **({"match": blk[2]} if len(blk) > 2 else {})})

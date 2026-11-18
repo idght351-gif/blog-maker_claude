@@ -244,8 +244,12 @@ def build_html():
             parts.append(f'<div class="q"><span class="mk">❝</span>{"<br>".join(rich(x.strip()) for x in blk[1].split("/"))}<span class="mk">❞</span></div>')
         elif k == "bubble":
             parts.append(f'<div class="bubble">{rich(blk[1])}</div>')
-        elif k == "h":
+        elif k in ("h", "hl"):
             parts.append(f'<div class="h">{rich(blk[1])}</div>')
+        elif k == "hq":
+            parts.append(f'<div class="q"><span class="mk">❝</span>{"<br>".join(rich(x.strip()) for x in blk[1].split("/"))}<span class="mk">❞</span></div>')
+        elif k == "hb":
+            parts.append(f'<p class="p b" style="margin-top:36px">{rich(blk[1])}</p>')
         elif k == "hr":
             parts.append('<hr>')
         elif k == "place":
@@ -323,7 +327,7 @@ def build_md():
             out.append("> ❝ " + " / ".join(x.strip() for x in blk[1].split("/")) + " ❞")
         elif k == "bubble":
             out.append(f"> 💬 {blk[1]}")
-        elif k == "h":
+        elif k in ("h", "hq", "hl", "hb"):
             out.append(f"### {blk[1]}")
         elif k == "hr":
             out.append("---")

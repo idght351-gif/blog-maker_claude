@@ -16,7 +16,7 @@ lines = [l for b in paras for l in plain(b[1]).split("\n") if l.strip()]
 body = "\n".join(lines)
 text_first = next(plain(b[1]) for b in paras if not plain(b[1]).startswith("["))
 imgs = [n for b in B if b[0] == "img" for n in b[1]]
-heads = [b[1] for b in B if b[0] == "h"]
+heads = [b[1] for b in B if b[0] in ("h", "hq", "hl", "hb")]
 emoji = sum(len(EMO.findall(l)) for l in lines)
 emoji_ratio = sum(1 for l in lines if EMO.search(l)) / len(lines)
 chars = len(body)
@@ -26,7 +26,7 @@ tags = TAGS.split()
 # 섹션별 빨간색 개수
 red_by_sec, sec = Counter(), "도입"
 for b in B:
-    if b[0] == "h": sec = b[1]
+    if b[0] in ("h", "hq", "hl", "hb"): sec = b[1]
     if b[0] == "p": red_by_sec[sec] += b[1].count("[[r:")
 
 # 같은 형용사·표현 반복 (3회 초과)
@@ -45,6 +45,15 @@ INTENS = ["정말", "진짜", "완전", "엄청", "너무", "무조건", "아주
 n_int = sum(body.count(w) for w in INTENS)
 TEMPLATE = ["직접 먹어보고 느낀 그대로", "직접 가보고 정리한", "정보부터 정리해", "알아두시면 좋은", "방문 전에 알아두"]
 tmpl = [t for t in TEMPLATE if t in body]
+
+
+# (2026-11-18) 글 템플릿: 최근 2개 글과 같은 템플릿 금지 (STYLE '글 템플릿 6종')
+import json as _json
+from pathlib import Path as _P
+TID = getattr(m, "TEMPLATE_ID", "")
+_log = _P(__file__).resolve().parent.parent / "data" / "template_log.json"
+_recent = [x["template"] for x in (_json.loads(_log.read_text()) if _log.exists() else [])][-2:]
+_store = getattr(m, "STORE", "")
 
 checks = [
     ("메인 키워드 지정", bool(MAIN), MAIN or "없음"),
@@ -107,6 +116,7 @@ checks += [
     ("[AI티] 답니다·더라고요·습니다·다 어미 15% 이상", r_other >= 0.15, f"{r_other:.0%}"),
     ("[AI티] 느낌표 문장 15% 이상", r_excl >= 0.15, f"{r_excl:.0%}"),
     ("[AI티] 정말·진짜·완전·엄청 등 6회 이상", n_int >= 6, f"{n_int}회"),
+    ("[템플릿] T1~T6 지정, 최근 2개와 다름", bool(re.fullmatch(r"T[1-6]", TID)) and TID not in _recent, f"{TID or '없음'} / 최근 {_recent}"),
     ("[AI티] 템플릿 문구 없음", not tmpl, ", ".join(tmpl) or "OK"),
     ("빨강·초록 강조 2~15자", not long_spans, ", ".join(s[:12] for s in long_spans[:3]) or "OK"),
 ]

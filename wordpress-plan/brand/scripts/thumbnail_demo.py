@@ -23,7 +23,8 @@ def pill(d,xy,text,font,fill=INK,fg=WHITE):
 def chip(d,x,y,big,small):
     w=max(d.textlength(big,font=F("Bold",34)),d.textlength(small,font=F("SemiBold",20)))+40
     d.rounded_rectangle([x,y,x+w,y+96],18,fill=WHITE); d.text((x+20,y+12),small,font=F("SemiBold",20),fill=(90,100,115)); d.text((x+20,y+42),big,font=F("Bold",34),fill=INK); return x+w+14
-def tag(d): d.text((W-150,H-34),"디자인 시안",font=F("Regular",16),fill=(90,110,130))
+def tag(d):
+    if not os.environ.get("NOTAG"): d.text((W-150,H-34),"디자인 시안",font=F("Regular",16),fill=(90,110,130))
 
 # A 분석형 (핵심 3칸 크게: 칸 폭 균등, 값 60px)
 def chips_big(d,y,items,x0=66,w=212,gap=14,h=150):

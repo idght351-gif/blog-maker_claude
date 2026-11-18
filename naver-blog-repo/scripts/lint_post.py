@@ -42,7 +42,7 @@ checks = [
     ("본문 메인 키워드 3~5회", 3 <= kw_count <= 5, f"{kw_count}회"),
     ("보조 키워드 본문 포함", all(ns(s) in ns(body + TITLE) for s in SUBS), ", ".join(s for s in SUBS if ns(s) not in ns(body + TITLE)) or "모두 포함"),
     ("태그 맨 앞 메인 키워드", tags and ns(MAIN) in tags[0], tags[0] if tags else ""),
-    ("해시태그 20개 이상", len(tags) >= 20, f"{len(tags)}개"),
+    ("해시태그 15~30개", 15 <= len(tags) <= 30, f"{len(tags)}개"),
     ("본문 2,500~4,000자", 2500 <= chars <= 4000, f"{chars:,}자"),
     ("사진 25장 이상", len(set(imgs)) >= 25, f"{len(set(imgs))}장"),
     ("이모지 40~80개 (사용자: 기본 이모티콘 많이)", 40 <= emoji <= 80, f"{emoji}개"),
@@ -62,7 +62,7 @@ checks = [
      ", ".join(sorted(set(re.findall(r"내돈내산|대가\s*없이|대가를\s*받지|협찬[^ ]*\s*받지", TITLE + body + TAGS + str(B))))) or "OK"),
 ]
 # --- v3 추가 점검 (STYLE.md 5-1, 5-2, 6-2, 7) ---
-first_is_img = B[0][0] == "img"
+first_is_img = B[0][0] == "img" or (B[0][0] == "p" and "광고" in B[0][1] and len(B) > 1 and B[1][0] == "img")  # 협찬 글은 광고 링크 다음 사진
 # 상위 블로그 문장과 15자 이상 겹침
 research = getattr(m, "RESEARCH_DIR", None)
 copied = []

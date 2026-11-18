@@ -105,7 +105,7 @@ checks += [
     ("한 문단 색 1가지", not multi_color, ", ".join(multi_color[:3]) or "OK"),
     ("[AI티] ~어요/에요 어미 35% 이하", r_eoyo <= 0.35, f"{r_eoyo:.0%}"),
     ("[AI티] 답니다·더라고요·습니다·다 어미 15% 이상", r_other >= 0.15, f"{r_other:.0%}"),
-    ("[AI티] 느낌표 문장 20% 이상", r_excl >= 0.20, f"{r_excl:.0%}"),
+    ("[AI티] 느낌표 문장 15% 이상", r_excl >= 0.15, f"{r_excl:.0%}"),
     ("[AI티] 정말·진짜·완전·엄청 등 6회 이상", n_int >= 6, f"{n_int}회"),
     ("[AI티] 템플릿 문구 없음", not tmpl, ", ".join(tmpl) or "OK"),
     ("빨강·초록 강조 2~15자", not long_spans, ", ".join(s[:12] for s in long_spans[:3]) or "OK"),

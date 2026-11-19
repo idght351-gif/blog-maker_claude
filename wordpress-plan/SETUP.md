@@ -18,5 +18,6 @@
 - REST: `curl https://baekhomoney.com/wp-json/wp/v2/...` 인증 헤더 없이 호출하면 프록시가 Basic 인증을 넣어 줌.
 - 글은 항상 `"status":"draft"`로만 올린다. 발행은 사용자가 검수 후 직접.
 - 이미지: `POST /wp/v2/media` (Content-Disposition 파일명 + Content-Type image/webp).
-- 카테고리 ID: 배당 2, 성장 3, 채권·금리 4, 금·원자재 5, 자산배분 6, 연금저축·ISA 7, ETF 가이드 1. 주 메뉴 ID 8.
+- 카테고리(ETF 종류만, 2026-11-19 사용자 결정): 배당 ETF 2, 성장 ETF 3, 안전자산 ETF 4(채권·금·원자재). 가이드·포트폴리오는 리포트 안 항목이라 카테고리 아님.
+- 태그 ID: 미국상장 9, 국내상장 10, 연금저축 11, ISA 12, IRP 13, 월배당 14, 커버드콜 15, 채권 16, 금 17, 원자재 18. 주 메뉴 ID 8 (배당·성장·안전자산·국내상장 ETF·소개).
 - REST 도우미: `python3 wordpress-plan/automation/wp.py GET /posts` (automation 폴더에서 실행)

@@ -57,7 +57,9 @@ _store = getattr(m, "STORE", "")
 
 checks = [
     ("메인 키워드 지정", bool(MAIN), MAIN or "없음"),
-    ("제목 35~45자", 35 <= len(TITLE) <= 45, f"{len(TITLE)}자"),
+    ("제목 35~50자", 35 <= len(TITLE) <= 50, f"{len(TITLE)}자"),
+    ("제목 [지역 유형 가게이름]으로 시작 (시그니처)", bool(re.match(r"^\[\S+ (맛집|카페|술집|빵집|베이커리|디저트|신상|신메뉴)\S* [^\]]+\]", TITLE)), TITLE[:20]),
+    ("제목 정보어 1개 (웨이팅·가격·주차·예약·포장·런치·메뉴)", bool(re.search(r"웨이팅|가격|\d[\d,]*원|주차|예약|포장|런치|메뉴", TITLE)), "OK" if re.search(r"웨이팅|가격|\d[\d,]*원|주차|예약|포장|런치|메뉴", TITLE) else "없음"),
     ("제목 앞 15자에 메인 키워드", ns(MAIN)[:4] in ns(TITLE[:15]), TITLE[:15]),
     ("첫 문장에 메인 키워드", ns(MAIN) in ns(text_first) or ns(MAIN) in ns(" ".join(lines[:3])), lines[1][:30] if len(lines) > 1 else ""),
     ("소제목 1곳 이상에 메인 키워드", any(ns(MAIN) in ns(h) for h in heads), ""),

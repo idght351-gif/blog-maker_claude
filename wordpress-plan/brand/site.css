@@ -11,7 +11,7 @@ body{background:#fff;color:var(--ink);font-size:17px;line-height:1.85;letter-spa
 .entry-meta,.cat-links,.tags-links{font-size:13px;color:var(--ink2)}
 a{color:var(--accent)}
 .entry-content p{margin:0 0 20px}
-.entry-content h2{font-size:23px;line-height:1.45;font-weight:800;margin:76px 0 20px;padding-top:32px;border-top:1px solid var(--line)}
+.entry-content h2{font-size:22px;line-height:1.45;font-weight:800;margin:72px 0 20px;padding:12px 14px;background:#f2f6fe;border-left:5px solid var(--accent);border-radius:0 10px 10px 0}
 .entry-content h3{font-size:18px;font-weight:700;margin:32px 0 8px}
 .entry-content mark{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit;padding:0 1px}
 .entry-content figure{margin:28px 0 12px}
@@ -43,3 +43,5 @@ ul.corr{list-style:none;padding:0;margin:8px 0 20px}ul.corr li{padding:12px 0;bo
 .sub{font-size:19px;font-weight:700;color:var(--accent);margin:0 0 14px;line-height:1.5}
 .entry-content .lead{font-weight:800;font-size:18px;line-height:1.6;margin:-6px 0 22px}
 .spy{color:var(--c-spy);font-weight:700}
+/* 대표 이미지(썸네일) 휴대폰에서 좌우 끝까지 */
+@media (max-width:699px){.single .featured-image,.single .page-header-image-single{margin-left:-20px;margin-right:-20px}.single .featured-image img,.single .page-header-image-single img{border-radius:0;width:100%}}

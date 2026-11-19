@@ -12,14 +12,17 @@ BLUE="#2a78d6"; ORANGE="#eb6834"; AQUA="#1baf7a"; YEL="#eda100"; RED="#e34948"; 
 plt.rcParams.update({"font.family":"Pretendard","font.size":13,"axes.edgecolor":GRID,"axes.labelcolor":INK2,"xtick.color":INK2,"ytick.color":INK2,
  "axes.spines.top":False,"axes.spines.right":False,"axes.spines.left":False,"axes.grid":True,"axes.grid.axis":"y","grid.color":GRID,"grid.linewidth":.8,
  "figure.facecolor":SURF,"axes.facecolor":SURF,"axes.titlesize":19,"axes.titleweight":"bold","axes.titlelocation":"left","axes.titlecolor":INK,"axes.titlepad":16})
-SRC="출처: Yahoo Finance · Alpha Vantage · 기준일 2026-11-18 · 배당 재투자 기준"
+TK=os.environ.get("TICKER","SCHD").lower()
+ASOF=S["SCHD"]["end"]
+SRC=f"출처: Yahoo Finance · Alpha Vantage · 기준일 {ASOF} · 배당 재투자 기준"
+NAMES={"01_top10":"top10-holdings","02_sector":"sector-weights","03_corr":"correlation","04_peers":"vs-vym-dgro-spy","05_growth_mdd":"growth-drawdown","06_annual":"annual-returns-vs-sp500","07_dividend":"dividend-growth","08_montecarlo":"30-year-dca-simulation","09_portfolio":"portfolio-backtest"}
 def save(fig,name,src=SRC):
     fig.text(.012,.012,src,color=INK2,fontsize=10.5); fig.tight_layout(rect=(0,.035,1,1))
     b=io.BytesIO(); fig.savefig(b,format="png",dpi=100); plt.close(fig)
     im=Image.open(b).convert("RGB"); q=88
     while True:
-        im.save(f"out/{name}.webp","WEBP",quality=q,method=6)
-        if os.path.getsize(f"out/{name}.webp")<100_000 or q<50: break
+        fn=f"out/{TK}-{NAMES[name]}.webp"; im.save(fn,"WEBP",quality=q,method=6)
+        if os.path.getsize(fn)<100_000 or q<50: break
         q-=6
 def rd(t):
     s=pd.read_csv(f"data/{t}.csv",index_col=0)["Close"]; s.index=pd.to_datetime([x[:10] for x in s.index]); return s[~s.index.duplicated()]
@@ -66,7 +69,7 @@ for i in range(1,len(ys)): ys[i]=max(ys[i],ys[i-1]+230)
 for (v,tk,d),y in zip(lab,ys): ax.text(d+pd.Timedelta(days=60),y,f"{tk} {v:,.0f}만",color=INK,va="center",fontsize=12.5,fontweight="bold" if tk=="SCHD" else "normal")
 ax.set_xlim(st,pd.Timestamp("2028-09-01")); ax.yaxis.set_major_formatter(lambda v,p:f"{v:,.0f}만")
 ax.set_title("④ 1,000만 원을 2014년에 넣었다면? 네 ETF가 4천만 원 안팎으로 비슷")
-save(fig,"04_peers","2014-06-12(DGRO 상장일)~2026-11-18 · 배당 재투자 · 환율 미반영(달러 기준 상대 비교)")
+save(fig,"04_peers","2014-06-12(DGRO 상장일)~"+ASOF+" · 배당 재투자 · 환율 미반영(달러 기준 상대 비교)")
 
 # 5 누적 성장 + 낙폭
 s=rd("SCHD"); g=s/s.iloc[0]*1000; dd=(s/s.cummax()-1)*100
@@ -76,7 +79,7 @@ a1.yaxis.set_major_formatter(lambda v,p:f"{v:,.0f}만"); a1.set_title(f"⑤ 상�
 a2.fill_between(dd.index,dd,0,color=RED,alpha=.18,lw=0); a2.plot(dd.index,dd,color=RED,lw=1.3)
 i=dd.idxmin(); a2.annotate(f"코로나 {dd.min():.1f}%",(i,dd.min()),xytext=(12,4),textcoords="offset points",fontsize=12.5,fontweight="bold",color=INK)
 a2.yaxis.set_major_formatter(lambda v,p:f"{v:.0f}%"); a2.set_ylabel("고점 대비 하락",fontsize=12)
-save(fig,"05_growth_mdd","2011-10-20~2026-11-18 · 배당 재투자 · 달러 기준")
+save(fig,"05_growth_mdd","2011-10-20~"+ASOF+" · 배당 재투자 · 달러 기준")
 
 # 6 연도별 수익률 SCHD vs SPY
 A=S["annual"]; ys=[y for y in A if A[y]["SCHD"] is not None]; x=np.arange(len(ys))

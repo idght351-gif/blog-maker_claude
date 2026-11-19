@@ -1,7 +1,7 @@
 /* 백호 머니 사이트 CSS v1 — 외모 > 사용자 정의하기 > 추가 CSS 에 붙여넣기 */
 @import url("https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css");
-:root{--ink:#191f28;--ink2:#6b7684;--ink3:#4e5968;--line:#eceef1;--soft:#f7f8fa;--accent:#2a78d6;--hl:rgba(255,214,90,.55);
---c-schd:#2a78d6;--c-dgro:#12936a;--c-vym:#d95926;--c-spy:#6b7684;--c-safe:#6250d6;--c-grow:#008300;--c-red:#d93a3a}
+:root{--ink:#191f28;--ink2:#6b7684;--ink3:#4e5968;--line:#eceef1;--soft:#f7f8fa;--accent:#3182f6;--hl:rgba(255,214,90,.55);
+--c-schd:#3182f6;--c-dgro:#12936a;--c-vym:#e8590c;--c-spy:#8b95a1;--c-safe:#7048e8;--c-grow:#20a464;--c-red:#f04452}
 body,button,input,select,textarea,.main-navigation a{font-family:"SUIT",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
 body{background:#fff;color:var(--ink);font-size:17px;line-height:1.85;letter-spacing:-.01em;word-break:keep-all}
 .site,.inside-article,.separate-containers .inside-article,.separate-containers .site-main>*,.site-header,.site-footer,.footer-widgets,.site-info{background:#fff}
@@ -40,3 +40,6 @@ a{color:var(--accent)}
 .ans{display:flex;gap:10px;align-items:flex-start;margin:0 0 24px}.ans img{width:34px;height:34px;border-radius:50%;flex:none;margin:2px 0 0}
 .ans div{min-width:0;background:var(--soft);border-radius:4px 16px 16px 16px;padding:12px 16px;font-size:16px;line-height:1.75}
 ul.corr{list-style:none;padding:0;margin:8px 0 20px}ul.corr li{padding:12px 0;border-bottom:1px solid var(--line);line-height:1.6}ul.corr li:last-child{border-bottom:0}
+.sub{font-size:19px;font-weight:700;color:var(--accent);margin:0 0 14px;line-height:1.5}
+.entry-content .lead{font-weight:800;font-size:18px;line-height:1.6;margin:-6px 0 22px}
+.spy{color:var(--c-spy);font-weight:700}

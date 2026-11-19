@@ -11,7 +11,7 @@
 - [x] 6. (완료 2026-11-19, http→https 301 확인. 카페24 기본 플러그인: WP Super Cache·Two Factor·NinjaFirewall·WPForce Logout·Complianz) 테마(GeneratePress 또는 Kadence) + 플러그인(Rank Math, UpdraftPlus) 설치
 - [x] 7. (완료 2026-11-19) Application Password(claude) → request_credential로 baekhomoney.com Basic 인증 저장(프록시 자동 주입, 값 모름). REST 인증·임시저장(글 id 7)·이미지 업로드 테스트 성공
 - [x] 8. (완료 2026-11-19) 페이지 발행: 소개(/about) 운영자 소개(/author-profile) 문의(/contact) 개인정보처리방침(/privacy-policy) 면책 고지(/disclaimer). 운영자=직장인 백호(직장인 개인투자자, 5년+), 문의=개인 Gmail 공개(사용자 선택). 작성자 slug baekho, 태그라인, 카테고리 7개, 주 메뉴. 스크립트 automation/setup_pages.py·setup_site.py
-- [ ] 9. (구글·Bing·네이버 확인+사이트맵 완료 2026-11-19. 남은 것: 다음 웹마스터도구, 첫 글 발행 후 네이버 RSS /feed/ 재제출) 검색엔진 등록: 구글 서치 콘솔(도메인 속성, DNS TXT 또는 Cloudflare 자동) / 네이버 서치어드바이저(메타태그→WPCode 헤더) / Bing(구글에서 가져오기) / 다음 웹마스터도구(robots.txt PIN→WPCode PHP 스니펫). 사이트맵 wp-sitemap.xml, RSS /feed/. WPCode Lite REST로 설치함(2026-11-19)
+- [ ] 9. (구글·Bing·네이버 확인+사이트맵 완료 2026-11-19. 다음 robots.txt 인증줄 WPCode PHP 스니펫으로 추가됨. 남은 것: 다음 인증하기 클릭 확인, 첫 글 발행 후 네이버 RSS /feed/ 재제출) 검색엔진 등록: 구글 서치 콘솔(도메인 속성, DNS TXT 또는 Cloudflare 자동) / 네이버 서치어드바이저(메타태그→WPCode 헤더) / Bing(구글에서 가져오기) / 다음 웹마스터도구(robots.txt PIN→WPCode PHP 스니펫). 사이트맵 wp-sitemap.xml, RSS /feed/. WPCode Lite REST로 설치함(2026-11-19)
 - [ ] 10. 첫 글(SCHD) 임시저장 → 검수 → 발행
 
 ## 자동화 메모

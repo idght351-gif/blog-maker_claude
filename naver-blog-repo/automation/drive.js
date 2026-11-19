@@ -157,8 +157,10 @@ async function init(count = 5) {
   const have = await numbered();
   for (let i = 1; i <= Number(count); i++) {
     if (have[i]) { log('있음:', have[i].map(f => f.name).join(', ')); continue; }
-    await api('POST', '/files', { name: `${i}_${EMPTY}`, mimeType: FOLDER, parents: ['root'] });
-    log('만듦:', `${i}_${EMPTY}`);
+    const nf = await api('POST', '/files', { name: `${i}_${EMPTY}`, mimeType: FOLDER, parents: ['root'] });
+    const src = Object.values(have)[0];   // 기존 번호 폴더의 공유(사진 올리는 계정 편집자)를 그대로 복사
+    const shared = src ? await copyShares(src[0].id, nf.id) : [];
+    log('만듦:', `${i}_${EMPTY}`, shared.length ? `(공유: ${shared.length}명)` : '');
   }
 }
 

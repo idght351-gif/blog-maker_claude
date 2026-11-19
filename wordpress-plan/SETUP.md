@@ -10,7 +10,7 @@
 - [x] 5. (완료 2026-11-19, 제목 백호 머니·서울·https 확인) 고유주소(퍼머링크) = 글 이름, 사이트 제목·언어·시간대 설정
 - [x] 6. (완료 2026-11-19, http→https 301 확인. 카페24 기본 플러그인: WP Super Cache·Two Factor·NinjaFirewall·WPForce Logout·Complianz) 테마(GeneratePress 또는 Kadence) + 플러그인(Rank Math, UpdraftPlus) 설치
 - [x] 7. (완료 2026-11-19) Application Password(claude) → request_credential로 baekhomoney.com Basic 인증 저장(프록시 자동 주입, 값 모름). REST 인증·임시저장(글 id 7)·이미지 업로드 테스트 성공
-- [ ] 8. 필수 페이지: 소개·운영자 소개·문의·개인정보처리방침
+- [x] 8. (완료 2026-11-19) 페이지 발행: 소개(/about) 운영자 소개(/author-profile) 문의(/contact) 개인정보처리방침(/privacy-policy) 면책 고지(/disclaimer). 운영자=직장인 백호(직장인 개인투자자, 5년+), 문의=개인 Gmail 공개(사용자 선택). 작성자 slug baekho, 태그라인, 카테고리 7개, 주 메뉴. 스크립트 automation/setup_pages.py·setup_site.py
 - [ ] 9. 구글 서치 콘솔(도메인 속성, DNS TXT) + 사이트맵 제출
 - [ ] 10. 첫 글(SCHD) 임시저장 → 검수 → 발행
 
@@ -18,3 +18,5 @@
 - REST: `curl https://baekhomoney.com/wp-json/wp/v2/...` 인증 헤더 없이 호출하면 프록시가 Basic 인증을 넣어 줌.
 - 글은 항상 `"status":"draft"`로만 올린다. 발행은 사용자가 검수 후 직접.
 - 이미지: `POST /wp/v2/media` (Content-Disposition 파일명 + Content-Type image/webp).
+- 카테고리 ID: 배당 2, 성장 3, 채권·금리 4, 금·원자재 5, 자산배분 6, 연금저축·ISA 7, ETF 가이드 1. 주 메뉴 ID 8.
+- REST 도우미: `python3 wordpress-plan/automation/wp.py GET /posts` (automation 폴더에서 실행)

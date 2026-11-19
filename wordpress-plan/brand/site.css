@@ -45,3 +45,5 @@ ul.corr{list-style:none;padding:0;margin:8px 0 20px}ul.corr li{padding:12px 0;bo
 .spy{color:var(--c-spy);font-weight:700}
 /* 대표 이미지(썸네일) 휴대폰에서 좌우 끝까지 */
 @media (max-width:699px){.single .featured-image,.single .page-header-image-single{margin-left:-20px;margin-right:-20px}.single .featured-image img,.single .page-header-image-single img{border-radius:0;width:100%}}
+.entry-title,.entry-content h2,.entry-content h3,.lead,.sub,.tldr li,.ans div,.baekho div{text-wrap:balance}
+.entry-content p,.entry-content li,.entry-content td{text-wrap:pretty}.nb{white-space:nowrap}

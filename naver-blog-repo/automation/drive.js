@@ -179,10 +179,11 @@ async function status() {
 async function claim(n, store, kind = 'post') {
   if (!n || !store) throw new Error(`사용법: ${kind === 'receipt' ? 'receipt' : 'claim'} <번호> <가게이름>`);
   const f = await byNum(n);
-  if (f.rest !== EMPTY) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
+  const pending = f.rest.endsWith('_미발행');   // 미리 가게 이름을 붙여 둔 폴더 (예: 2_일일미미_미발행)
+  if (f.rest !== EMPTY && !pending) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
   const cnt = (await filesIn(f.id)).length;
   if (!cnt) throw new Error(`${f.name} 에 사진이 없습니다.`);
-  await api('PATCH', `/files/${f.id}`, { name: `${n}_${store}`, description: JSON.stringify({ store, kind, claimedAt: new Date().toISOString() }) });
+  await api('PATCH', `/files/${f.id}`, { name: `${n}_${store}${pending ? '_미발행' : ''}`, description: JSON.stringify({ store, kind, claimedAt: new Date().toISOString() }) });
   log(`${f.name} → ${n}_${store} (파일 ${cnt}개)`);
 }
 

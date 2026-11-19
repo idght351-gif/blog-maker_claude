@@ -130,3 +130,5 @@
 - SCHD 댓글 주제: 하락·횡보장 적립식(최다 공감), 그냥 S&P500?, 배당성장 지속?, 국내 미국배당다우존스 총비용·환헤지, PTP 10% 원천징수 오해, 월 배당 100만 원.
 
 - 상관계수 차트: 정사각 히트맵(X·Y 같은 5자산), 0=빨강·0.5=흰색·1=파랑, 대각선 회색 1.00, SCHD 줄 테두리. 아래에 자산별 한 줄 설명 목록(ul.corr). corr_heatmap.py
+- **댓글 수집 실행:** `cd wordpress-plan/automation && python3 yt_comments.py "티커 배당" 4` (무료 YouTube API, 키는 환경 Network secrets: www.googleapis.com / X-Goog-Api-Key / 경로 /youtube/v3/). 결과 ../etf/data/yt_*.json, 공감+답글 순 상위 35개 출력.
+- SCHD 2차 수집에서 추가된 주제: 배당 세금·건강보험료(공감 479), 지금 사도 되나·고점 논쟁(답글 38).

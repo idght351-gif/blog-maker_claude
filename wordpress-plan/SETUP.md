@@ -8,7 +8,7 @@
 - [x] 3. (완료 2026-11-19, A 레코드·접속·wp-json 응답 확인) Cloudflare DNS(A @·www → 183.111.138.226, 프록시 끔=회색 구름) + 카페24에 baekhomoney.com·www 연결 (카페24 서버 IP는 baekhomoney.mycafe24.com 조회값)
 - [x] 4. (SSL 발급·대표도메인 완료 2026-11-19, 사이트주소 https 자동변경됨) 남은 것: 설정>일반 워드프레스 주소(siteurl)를 https로, 사이트 제목 백호 머니. http→https 자동 이동은 6단계 플러그인으로
 - [x] 5. (완료 2026-11-19, 제목 백호 머니·서울·https 확인) 고유주소(퍼머링크) = 글 이름, 사이트 제목·언어·시간대 설정
-- [ ] 6. 테마(GeneratePress 또는 Kadence) + 플러그인(Rank Math, UpdraftPlus) 설치
+- [x] 6. (완료 2026-11-19, http→https 301 확인. 카페24 기본 플러그인: WP Super Cache·Two Factor·NinjaFirewall·WPForce Logout·Complianz) 테마(GeneratePress 또는 Kadence) + 플러그인(Rank Math, UpdraftPlus) 설치
 - [ ] 7. Application Password 발급 → 보안 입력창으로 저장 → Claude 연결 테스트(임시저장 1건)
 - [ ] 8. 필수 페이지: 소개·운영자 소개·문의·개인정보처리방침
 - [ ] 9. 구글 서치 콘솔(도메인 속성, DNS TXT) + 사이트맵 제출

@@ -132,3 +132,4 @@
 - 상관계수 차트: 정사각 히트맵(X·Y 같은 5자산), 0=빨강·0.5=흰색·1=파랑, 대각선 회색 1.00, SCHD 줄 테두리. 아래에 자산별 한 줄 설명 목록(ul.corr). corr_heatmap.py
 - **댓글 수집 실행:** `cd wordpress-plan/automation && python3 yt_comments.py "티커 배당" 4` (무료 YouTube API, 키는 환경 Network secrets: www.googleapis.com / X-Goog-Api-Key / 경로 /youtube/v3/). 결과 ../etf/data/yt_*.json, 공감+답글 순 상위 35개 출력.
 - SCHD 2차 수집에서 추가된 주제: 배당 세금·건강보험료(공감 479), 지금 사도 되나·고점 논쟁(답글 38).
+- **유튜브 API 사용량 규칙 (2026-11-19):** 무료 한도는 한 달이 아니라 '하루 10,000단위'(태평양 시간 자정 초기화). 계획 = 하루 3편 × 글당 최대 약 105단위(검색 100+영상 1+댓글 4) ≈ 하루 315단위(3%). 30일 × 3편 = 90편도 매일 한도 안. yt_comments.py가 data/yt_quota.json에 날짜별 기록, 하루 3편 넘으면 멈춤(--force로 예외). 영상은 글당 최대 4개.

@@ -136,3 +136,4 @@ models/yunet.onnx           얼굴 인식 모델
 
 ## 붙여넣기 도우미 페이지 (2026-11-18)
 자동 임시저장 대신 사용자가 네이버 앱에 직접 입력할 때: `python3 scripts/make_helper_page.py drafts/build_<가게>.py drafts/<가게>_upload <출력폴더>` → `<출력폴더>/index.html`을 Artifact로 올리고 `p/` 사진을 `files`로 함께 올림 (한 번에 64MB까지라 크면 나눠 올림, `capabilities: {downloads: true}`). 글 덩어리마다 [글 복사], 사진마다 [저장] 버튼. 견본: 비바나폴리.
+- PC 버전: `python3 scripts/make_pc_page.py drafts/build_<가게>.py drafts/<가게>_upload <출력.html>` → [본문 전체 복사(서식+사진)] 버튼 하나로 복사해 네이버 PC 에디터에 Ctrl+V (사진은 페이지 안에 1000px로 내장, GIF는 자리 표시 + 따로 저장). 붙여넣기로 사진이 들어가는지는 시험 중.

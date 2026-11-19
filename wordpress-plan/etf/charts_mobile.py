@@ -85,7 +85,7 @@ lab = []
 for k, c, nm in [("안정형 (SCHD 60 + IEF 40)", C["안정형"], "안정형"), ("성장형 (SCHD 50 + QQQ 50)", C["성장형"], "성장형"), ("SCHD 단독", C["SCHD"], "SCHD")]:
     s = PF[k]; ax.plot(s.index, s, color=c, lw=3.4 if nm == "SCHD" else 2.6); lab.append((s.iloc[-1], nm, c))
 spm = rd("SPY").resample("ME").last(); spm = spm[(spm.index >= PF.index[0] - pd.Timedelta(days=40)) & (spm.index <= PF.index[-1])]
-spv = spm / spm.iloc[0] * 1000 * (PF.iloc[0, 0] / 1000); ax.plot(spv.index, spv, color=C["SPY"], lw=2.2); lab.append((spv.iloc[-1], "S&P500", C["SPY"]))
+# S&P500 선은 독자 혼란을 줄이려 뺌(본문 한 줄로 비교)
 lab.sort(); yy = [l[0] for l in lab]
 for k in range(1, len(yy)): yy[k] = max(yy[k], yy[k - 1] + 900)
 lab = [(y, nm, c, v0) for (v0, nm, c), y in zip(lab, yy)]

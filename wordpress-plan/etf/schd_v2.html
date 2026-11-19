@@ -1,14 +1,15 @@
 <title>SCHD 리포트 v2</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-/* 레이아웃: 흰 바탕 한 단(최대 640px), 휴대폰 우선. 색은 잉크·회색·파랑 하나, 노랑 형광펜은 섹션당 한 번 */
+/* 레이아웃: 흰 바탕 한 단(최대 640px), 휴대폰 우선. 색은 잉크·회색·파랑, 차트 계열색은 표 이름에도 같은 색 */
 @font-face{font-family:"SUIT";src:url("fonts/SUIT-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"SUIT";src:url("fonts/SUIT-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"SUIT";src:url("fonts/SUIT-ExtraBold.woff2") format("woff2");font-weight:800;font-display:swap}
 :root{
   color-scheme:light;
-  --bg:#ffffff; --ink:#191f28; --ink2:#6b7684; --line:#eceef1; --soft:#f7f8fa;
+  --bg:#ffffff; --ink:#191f28; --ink2:#6b7684; --ink3:#4e5968; --line:#eceef1; --soft:#f7f8fa;
   --accent:#2a78d6; --hl:rgba(255,214,90,.55);
+  --c-schd:#2a78d6; --c-dgro:#12936a; --c-vym:#d95926; --c-spy:#6b7684; --c-safe:#6250d6; --c-grow:#008300; --c-red:#d93a3a;
   --font:"SUIT",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
 }
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.85;letter-spacing:-.01em;word-break:keep-all;
@@ -24,21 +25,29 @@ h1{font-size:clamp(25px,6.4vw,32px);line-height:1.4;font-weight:800;margin:8px 0
 .kpi{padding:16px 4px;border-bottom:1px solid var(--line)}
 .kpi:nth-child(odd){border-right:1px solid var(--line);padding-right:12px}
 .kpi:nth-child(even){padding-left:16px}
-.kpi b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3}
+.kpi b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3;color:var(--accent)}
 .kpi span{font-size:13px;color:var(--ink2)}
+.kpi i{display:block;font-style:normal;font-size:12.5px;color:var(--c-spy);margin-top:2px}
+.tldr{background:var(--soft);border-radius:14px;padding:18px 20px;margin:28px 0}
+.tldr b{display:block;font-size:13px;color:var(--ink2);margin-bottom:6px}
+.tldr ol{margin:0;padding-left:20px}.tldr li{margin:4px 0}
 p{margin:0 0 20px}
 h2{font-size:23px;line-height:1.45;font-weight:800;margin:76px 0 20px;padding-top:32px;border-top:1px solid var(--line);text-wrap:balance}
 h3{font-size:18px;font-weight:700;margin:32px 0 8px}
 .num{color:var(--accent);font-weight:800}
+.neg{color:var(--c-red);font-weight:800}
 mark{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit;padding:0 1px}
-figure{margin:28px 0}
-figure img{width:100%;display:block;border-radius:10px}
+figure{margin:28px 0 12px}
+figure img{width:100%;display:block;border-radius:10px;border:1px solid var(--line)}
+.how{font-size:14px;line-height:1.7;color:var(--ink3);margin:0 0 24px}
+.how b{color:var(--ink);font-weight:700;margin-right:4px}
 .tbl{overflow-x:auto;margin:20px 0 24px}
 table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
 th,td{padding:11px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
 thead th{font-size:13px;font-weight:700;color:var(--ink2)}
-tr.me td{font-weight:800}
+td.k{font-weight:800}
+.c-schd{color:var(--c-schd)}.c-dgro{color:var(--c-dgro)}.c-vym{color:var(--c-vym)}.c-spy{color:var(--c-spy)}.c-safe{color:var(--c-safe)}.c-grow{color:var(--c-grow)}
 ul.clean{margin:0 0 20px;padding-left:20px}
 ul.clean li{margin-bottom:8px}
 .note{font-size:14px;color:var(--ink2);line-height:1.7}
@@ -67,97 +76,103 @@ a{color:var(--accent);text-decoration:none}
 <img class="hero" src="out/schd-thumbnail.webp" alt="SCHD 썸네일. 배당률 3.0%, 배당 성장 연 11%, 30년 적립 중앙값 19.8억">
 
 <div class="kpis">
-  <div class="kpi"><b>3.0%</b><span>배당률 (최근 1년)</span></div>
-  <div class="kpi"><b>연 11%</b><span>배당 성장 (13년 연속 증가)</span></div>
-  <div class="kpi"><b>13.4%</b><span>연평균 수익률</span></div>
-  <div class="kpi"><b>-33.4%</b><span>최대 낙폭</span></div>
+  <div class="kpi"><b>3.0%</b><span>배당률 (최근 1년)</span><i>S&amp;P500 1.0%</i></div>
+  <div class="kpi"><b>연 11%</b><span>배당 성장 (13년 연속 증가)</span><i>S&amp;P500 연 6.8%</i></div>
+  <div class="kpi"><b>13.4%</b><span>연평균 수익률</span><i>S&amp;P500 14.6%</i></div>
+  <div class="kpi"><b style="color:var(--c-red)">-33.4%</b><span>최대 낙폭</span><i>S&amp;P500 -33.7%</i></div>
 </div>
 
-<p style="margin-top:28px">SCHD는 배당 ETF 하면 가장 먼저 나오는 이름이에요.</p>
+<p class="note" style="margin-top:16px">회색 숫자는 같은 기간 S&amp;P500(SPY)이에요. 이 블로그의 모든 숫자는 S&amp;P500과 비교합니다.</p>
+<p style="margin-top:20px">SCHD는 배당 ETF 하면 가장 먼저 나오는 이름이에요.</p>
 <p>저도 아직 사지 않았고, 사기 전에 <mark>15년 치 데이터를 직접 계산</mark>해 봤습니다. 좋은 점보다 단점을 먼저 알고 싶었거든요.</p>
 
-<h2>SCHD는 어떤 ETF인가요?</h2>
-<p>미국 찰스 슈왑이 2011년에 상장한 ETF로, <strong>10년 이상 배당을 준 미국 우량 기업 100곳</strong>을 담습니다.</p>
-<div class="tbl"><table><tbody>
-<tr><td>정식 이름</td><td>Schwab U.S. Dividend Equity</td></tr>
-<tr><td>상장일</td><td>2011.10.20</td></tr>
-<tr><td>총보수</td><td>연 0.06%</td></tr>
-<tr><td>배당 주기</td><td>분기 (3·6·9·12월)</td></tr>
-<tr><td>종목 수</td><td>약 100개</td></tr>
-</tbody></table></div>
+<div class="tldr"><b>이 글의 핵심 3줄</b><ol>
+<li>배당률 <span class="num">3.0%</span>로 S&amp;P500의 <span class="num">3배</span>, 배당은 13년 연속 증가</li>
+<li>대신 총수익은 S&amp;P500보다 연 <span class="neg">1.2%p</span> 낮고, 최근 <span class="neg">3년 연속</span> 뒤처짐</li>
+<li>매달 50만 원씩 30년이면 중앙값 <span class="num">19.8억</span> (S&amp;P500 25.7억)</li>
+</ol></div>
 
 <h2>SCHD 배당금과 배당일</h2>
-<p>최근 1년 동안 주당 <span class="num">약 1.06달러</span>를 받았고, 배당률로는 <span class="num">약 3.0%</span>예요.</p>
-<p>배당락일은 보통 3·6·9·12월 하순이고, 지급은 며칠 뒤입니다.</p>
+<p>최근 1년 동안 주당 <span class="num">약 1.06달러</span>를 받았고, 배당률로는 <span class="num">약 3.0%</span>예요. 같은 돈을 S&amp;P500에 넣었을 때(<span class="c-spy"><b>1.0%</b></span>)보다 <strong>3배</strong> 많은 배당이에요.</p>
+<p>배당락일은 보통 <strong>3·6·9·12월 하순</strong>이고, 지급은 며칠 뒤입니다.</p>
 <div class="tbl"><table><thead><tr><th>배당락일</th><th>주당 배당금</th></tr></thead><tbody>
 <tr><td>2025.12.10</td><td>$0.278</td></tr>
 <tr><td>2026.03.25</td><td>$0.257</td></tr>
 <tr><td>2026.06.24</td><td>$0.253</td></tr>
 <tr><td>2026.09.23</td><td>$0.267</td></tr>
 </tbody></table></div>
-<figure><img src="out/schd-dividend-growth.webp" alt="SCHD 주당 연간 배당금. 2012년 0.27달러에서 2025년 1.05달러로 매년 증가" loading="lazy"></figure>
+<figure><img src="out/m-schd-dividend-growth.webp" alt="SCHD 주당 연간 배당금. 2012년 0.27달러에서 2025년 1.05달러로 13년 동안 3.9배" loading="lazy"></figure>
 <p>제가 SCHD에서 가장 끌린 부분이에요.</p>
-<p>주당 배당금이 <mark>13년 동안 한 번도 줄지 않고 3.9배</mark>가 됐습니다. 오래 들고 있을수록 산 가격 대비 배당률이 올라가요.</p>
-
-<h2>SCHD 구성 종목과 섹터</h2>
-<figure><img src="out/schd-top10-holdings.webp" alt="SCHD 상위 10종목 비중. 텍사스 인스트루먼트 4.8%, P&amp;G 4.3%, 코카콜라 4.2%" loading="lazy"></figure>
-<p>한 종목이 5%를 넘지 않게 고르게 담겨 있어요.</p>
-<figure><img src="out/schd-sector-weights.webp" alt="SCHD 섹터 비중. 필수소비재 20.4%, 헬스케어 18.9%, 에너지 14.7%, 정보기술 11.8%" loading="lazy"></figure>
-<p>필수소비재·헬스케어·에너지가 절반이고, <strong>기술주는 12%</strong>뿐입니다. 이 숫자가 뒤에 나올 단점과 바로 이어져요.</p>
-
-<h2>SCHD 연평균 수익률과 10년 수익률</h2>
-<figure><img src="out/schd-growth-drawdown.webp" alt="SCHD 상장 이후 1,000만 원 누적 성장과 고점 대비 하락폭" loading="lazy"></figure>
-<div class="tbl"><table><tbody>
-<tr><td>상장 이후 연평균</td><td><b>13.4%</b></td></tr>
-<tr><td>최근 10년 연평균</td><td>13.1% <span class="note">(S&amp;P500 14.6%)</span></td></tr>
-<tr><td>원화 환산 연평균</td><td>14.7%</td></tr>
-<tr><td>최대 낙폭</td><td>-33.4% <span class="note">(6개월 만에 회복)</span></td></tr>
-</tbody></table></div>
-<p>상장 때 넣은 1,000만 원은 지금 <span class="num">약 6,700만 원</span>이 됐어요.</p>
+<p>주당 배당금이 <span class="num">$0.27</span>에서 <span class="num">$1.05</span>로, <mark>13년 동안 한 번도 줄지 않고 3.9배</mark>가 됐습니다. 같은 기간 S&amp;P500의 배당은 <span class="c-spy"><b>2.4배</b></span>(연 6.8%) 늘었어요. 오래 들고 있을수록 산 가격 대비 배당률이 올라가요.</p>
 
 <h2>SCHD 단점: 3년 연속 S&amp;P500에 밀렸다</h2>
-<figure><img src="out/schd-annual-returns-vs-sp500.webp" alt="SCHD와 S&amp;P500 연도별 수익률. 2023~2025년 SCHD 부진" loading="lazy"></figure>
+<figure><img src="out/m-schd-annual-returns.webp" alt="SCHD와 S&amp;P500 연도별 수익률. 2023~2025년 SCHD가 3년 연속 뒤처짐" loading="lazy"></figure>
 <p>솔직히 가장 아쉬운 부분이에요. <mark>2023~2025년 3년 연속 S&amp;P500에 크게 밀렸습니다.</mark></p>
-<p>2023년에 S&amp;P500이 26% 오를 때 SCHD는 4.5%에 그쳤어요. 기술주가 적어 AI 상승장을 거의 못 탔기 때문입니다.</p>
-<p>반대로 2022년 하락장에선 -3%로 버텼고, 2026년엔 다시 앞서고 있어요.</p>
+<p>2023년에 <span class="c-spy"><b>S&amp;P500</b></span>이 <strong>26%</strong> 오를 때 <span class="c-schd"><b>SCHD</b></span>는 <span class="neg">4.5%</span>에 그쳤어요. 기술주가 <strong>12%</strong>뿐이라 AI 상승장을 거의 못 탔기 때문입니다.</p>
+<p>반대로 2022년 하락장에선 <span class="num">-3%</span>로 버텼고(S&amp;P500 -18%), 2026년엔 <span class="num">30%</span>로 다시 앞서고 있어요.</p>
 <ul class="clean">
 <li>성장장에서는 S&amp;P500보다 덜 오른다</li>
 <li>분기 배당이라 매달 현금흐름엔 아쉽다</li>
 <li>환율과 배당세 15%를 같이 신경 써야 한다</li>
 </ul>
 
+<h2>SCHD 적립식 30년 투자하면 얼마?</h2>
+<figure><img src="out/m-schd-dca-30y.webp" alt="SCHD 매달 50만 원 30년 적립식 1,000회 시뮬레이션. SCHD 중앙값 19.8억, S&amp;P500 중앙값 25.7억" loading="lazy"></figure>
+<p class="how"><b>분석 방법 · 몬테카를로 시뮬레이션</b>SCHD의 과거 월간 수익률 180여 개를 무작위로 다시 뽑아 30년(360개월)을 이어 붙이는 걸 1,000번 반복했어요. 미래를 한 줄로 맞히는 대신 "좋은 경우부터 나쁜 경우까지" 범위를 보여 줍니다.</p>
+<div class="tbl"><table><thead><tr><th>30년 뒤 (원금 1.8억)</th><th class="c-schd">SCHD</th><th class="c-spy">S&amp;P500</th></tr></thead><tbody>
+<tr><td>하위 5% (운이 나쁠 때)</td><td>7.6억</td><td class="c-spy">10.0억</td></tr>
+<tr><td class="k">중앙값</td><td class="k c-schd">19.8억</td><td class="k c-spy">25.7억</td></tr>
+<tr><td>상위 5% (운이 좋을 때)</td><td>52.5억</td><td class="c-spy">71.2억</td></tr>
+</tbody></table></div>
+<p>가운데 결과가 <span class="num">19.8억</span>으로, 낸 돈의 <span class="num">약 11배</span>예요. 같은 방식으로 S&amp;P500을 돌리면 <span class="c-spy"><b>25.7억</b></span>이라, <mark>총자산 불리기만 보면 S&amp;P500이 더 컸어요.</mark> 다만 그 사이 한 번은 <span class="neg">25~40% 하락</span>을 겪는다고 보는 게 맞아요.</p>
+<p class="note">지난 15년이 특히 좋았던 기간이라 낙관적인 숫자예요. 연 8%로 보수적으로 잡으면 약 7.5억입니다. 세금·물가는 빠져 있어요.</p>
+
+<h2>SCHD에 무엇을 섞을까?</h2>
+<figure><img src="out/m-schd-correlation.webp" alt="SCHD와 S&amp;P500 0.82, 비트코인 0.25, 금 0.12, 장기채 0.08 상관계수" loading="lazy"></figure>
+<p class="how"><b>분석 방법 · 상관계수</b>두 자산이 같은 달에 같은 방향으로 움직였는지를 0~1 사이 숫자로 나타냈어요. 1에 가까우면 함께 오르내리고, 0에 가까우면 서로 상관없이 움직여요. 2014년부터 146개월 데이터로 계산했습니다.</p>
+<p>SCHD는 S&amp;P500과 <span class="num">0.82</span>로 거의 함께 움직이고, 금(<span class="num">0.12</span>)·장기채(<span class="num">0.08</span>)와는 따로 움직여요. 배당 ETF라고 <mark>하락장 방패는 아니라는 뜻</mark>이에요.</p>
+<figure><img src="out/m-schd-portfolio.webp" alt="성장형 9.8배, S&amp;P500 7.7배, SCHD 단독 6.6배, 안정형 3.5배 백테스트" loading="lazy"></figure>
+<p class="how"><b>분석 방법 · 백테스트</b>2011년 11월에 1,000만 원을 넣고, 매년 말 원래 비율로 다시 맞췄다고 가정해 과거 데이터로 계산했어요.</p>
+<div class="tbl"><table><thead><tr><th>예시 조합 (2011.11~)</th><th>연평균</th><th>최대 낙폭</th></tr></thead><tbody>
+<tr><td class="k c-safe">안정형 SCHD 60 + 채권 40</td><td>8.7%</td><td>-15.7%</td></tr>
+<tr><td class="k c-schd">SCHD 단독</td><td>13.3%</td><td>-21.5%</td></tr>
+<tr><td class="k c-grow">성장형 SCHD 50 + QQQ 50</td><td>16.3%</td><td>-24.1%</td></tr>
+<tr><td class="k c-spy">비교: S&amp;P500</td><td>14.3%</td><td>-23.9%</td></tr>
+</tbody></table></div>
+<p>저는 <span class="c-grow"><b>성장형</b></span>이 가장 눈에 들어왔어요. 연평균 <span class="num">16.3%</span>로 S&amp;P500(<span class="c-spy"><b>14.3%</b></span>)보다도 높았고, SCHD가 약했던 해를 QQQ가 메워 줬거든요.</p>
+<div class="baekho"><img src="out/baekho_face.webp" alt=""><div><b>백호 한마디</b>SCHD는 혼자보다 성장주 옆에 둘 때 더 빛나.</div></div>
+
+<h2>SCHD 연평균 수익률과 최대 낙폭</h2>
+<figure><img src="out/m-schd-growth-drawdown.webp" alt="SCHD 상장 이후 6.7배 성장, 코로나 때 -33% 하락 후 6개월 만에 회복" loading="lazy"></figure>
+<p class="how"><b>읽는 법</b>위는 상장 때 넣은 돈이 몇 배가 됐는지, 아래는 직전 최고점보다 얼마나 떨어졌는지(최대 낙폭)를 보여 줘요.</p>
+<div class="tbl"><table><tbody>
+<tr><td>상장 이후 연평균</td><td class="k c-schd">13.4% <span class="note c-spy">(S&amp;P500 14.6%)</span></td></tr>
+<tr><td>최근 10년 연평균</td><td>13.1% <span class="note c-spy">(S&amp;P500 14.6%)</span></td></tr>
+<tr><td>원화 환산 연평균</td><td>14.7%</td></tr>
+<tr><td>최대 낙폭</td><td><span class="neg">-33.4%</span> <span class="note c-spy">(S&amp;P500 -33.7%)</span></td></tr>
+</tbody></table></div>
+<p>상장 때 넣은 1,000만 원은 지금 <span class="num">약 6,700만 원</span>이 됐어요. S&amp;P500이었다면 <span class="c-spy"><b>약 7,800만 원</b></span>이에요. 대신 SCHD는 그중 더 많은 부분을 배당으로 받았어요.</p>
+
 <h2>SCHD vs DGRO·VYM 비교</h2>
-<figure><img src="out/schd-vs-vym-dgro-spy.webp" alt="2014년부터 SCHD, VYM, DGRO, SPY 1,000만 원 누적 성장 비교" loading="lazy"></figure>
+<figure><img src="out/m-schd-vs-peers.webp" alt="2014년부터 S&amp;P500 4.6배, DGRO 4.3배, SCHD 4.1배, VYM 3.6배" loading="lazy"></figure>
 <div class="tbl"><table><thead><tr><th>2014.6~</th><th>연평균</th><th>배당률</th><th>최대 낙폭</th></tr></thead><tbody>
-<tr class="me"><td>SCHD</td><td>12.1%</td><td>3.0%</td><td>-33.4%</td></tr>
-<tr><td>DGRO</td><td>12.4%</td><td>1.9%</td><td>-35.1%</td></tr>
-<tr><td>VYM</td><td>10.7%</td><td>2.3%</td><td>-35.2%</td></tr>
+<tr><td class="k c-schd">SCHD</td><td class="k">12.1%</td><td class="k">3.0%</td><td class="k">-33.4%</td></tr>
+<tr><td class="k c-dgro">DGRO</td><td>12.4%</td><td>1.9%</td><td>-35.1%</td></tr>
+<tr><td class="k c-vym">VYM</td><td>10.7%</td><td>2.3%</td><td>-35.2%</td></tr>
+<tr><td class="k c-spy">S&amp;P500</td><td>13.2%</td><td>-</td><td>-33.7%</td></tr>
 </tbody></table></div>
 <p>수익률은 비슷하지만, SCHD가 <mark>배당률이 가장 높고 덜 빠졌어요.</mark></p>
 <p class="note">연금저축·ISA로 같은 지수에 투자하는 방법은 「SCHD vs TIGER 미국배당다우존스」 글에서 따로 정리할게요.</p>
 
-<h2>SCHD 적립식 30년 투자하면 얼마?</h2>
-<p>과거 월간 수익률을 무작위로 섞어 <strong>매달 50만 원씩 30년</strong>을 1,000번 돌려 봤어요.</p>
-<figure><img src="out/schd-30-year-dca-simulation.webp" alt="SCHD 매달 50만 원 30년 적립식 1,000회 시뮬레이션. 중앙값 19.8억" loading="lazy"></figure>
-<div class="tbl"><table><thead><tr><th>30년 뒤 (원금 1.8억)</th><th>평가액</th></tr></thead><tbody>
-<tr><td>하위 5%</td><td>7.6억</td></tr>
-<tr class="me"><td>중앙값</td><td>19.8억</td></tr>
-<tr><td>상위 5%</td><td>52.5억</td></tr>
+<h2>SCHD 기본 정보와 구성 종목</h2>
+<div class="tbl"><table><tbody>
+<tr><td>운용사 · 상장일</td><td>찰스 슈왑 · 2011.10.20</td></tr>
+<tr><td>추종 지수</td><td>다우존스 미국 배당 100</td></tr>
+<tr><td>총보수</td><td>연 0.06%</td></tr>
+<tr><td>종목 수</td><td>약 100개</td></tr>
 </tbody></table></div>
-<p>중간쯤 되는 결과가 <span class="num">19.8억</span>이고, 그 사이 한 번은 <strong>25~40% 하락</strong>을 겪는다고 보는 게 맞아요.</p>
-<p class="note">지난 15년이 특히 좋았던 기간이라 낙관적인 숫자예요. 연 8%로 보수적으로 잡으면 약 7.5억입니다. 세금·물가는 빠져 있어요.</p>
-
-<h2>SCHD에 무엇을 섞을까?</h2>
-<figure><img src="out/schd-correlation.webp" alt="SCHD와 S&amp;P500 0.82, 장기채 0.08, 금 0.12, 비트코인 0.25 상관계수" loading="lazy"></figure>
-<p>SCHD는 S&amp;P500과 <strong>0.82</strong>로 함께 움직이고, 채권·금과는 거의 따로 움직여요. 배당 ETF라고 하락장 방패는 아니라는 뜻이에요.</p>
-<figure><img src="out/schd-portfolio-backtest.webp" alt="SCHD 단독, 안정형 SCHD 60+IEF 40, 성장형 SCHD 50+QQQ 50 백테스트" loading="lazy"></figure>
-<div class="tbl"><table><thead><tr><th>2011.11~ 예시 조합</th><th>연평균</th><th>최대 낙폭</th></tr></thead><tbody>
-<tr><td>안정형 SCHD 60 + 채권 40</td><td>8.7%</td><td>-15.7%</td></tr>
-<tr class="me"><td>SCHD 단독</td><td>13.3%</td><td>-21.5%</td></tr>
-<tr><td>성장형 SCHD 50 + QQQ 50</td><td>16.3%</td><td>-24.1%</td></tr>
-</tbody></table></div>
-<p>저는 <mark>성장형 조합</mark>이 가장 눈에 들어왔어요. SCHD가 약했던 해를 QQQ가 메워 줬거든요.</p>
-<div class="baekho"><img src="out/baekho_face.webp" alt=""><div><b>백호 한마디</b>SCHD는 혼자보다 성장주 옆에 둘 때 더 빛나.</div></div>
+<figure><img src="out/m-schd-sectors.webp" alt="SCHD 섹터 비중. 필수소비재 20%, 헬스케어 19%, 에너지 15%, 정보기술 12%" loading="lazy"></figure>
+<p>상위 종목은 텍사스 인스트루먼트(4.8%), P&amp;G(4.3%), 코카콜라(4.2%) 순이에요. 한 종목이 <strong>5%</strong>를 넘지 않게 고르게 담겨 있습니다.</p>
 
 <h2>정리</h2>
 <div class="summary">
@@ -172,7 +187,7 @@ a{color:var(--accent);text-decoration:none}
 <h3>연금저축이나 ISA로 살 수 있나요?</h3>
 <p>미국 상장이라 직접은 못 사요. 같은 지수를 따르는 국내 상장 미국배당다우존스 ETF로 대신할 수 있어요.</p>
 <h3>배당금에 세금은 얼마나 붙나요?</h3>
-<p>미국에서 15%를 떼고 들어와요. 보통 추가 세금은 없지만, 금융소득이 연 2,000만 원을 넘으면 종합과세 대상입니다.</p>
+<p>미국에서 <strong>15%</strong>를 떼고 들어와요. 보통 추가 세금은 없지만, 금융소득이 연 2,000만 원을 넘으면 종합과세 대상입니다.</p>
 
 <h2>다음에 읽을 글</h2>
 <ul class="next">

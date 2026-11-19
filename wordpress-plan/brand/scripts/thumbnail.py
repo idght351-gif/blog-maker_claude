@@ -38,5 +38,5 @@ def make_thumb(ticker, label, headline, chips, pose, out, tick_size=160):
 
 if __name__ == "__main__":
     make_thumb("SCHD", "배당 ETF 완전분석", "배당 ETF의 정석일까?",
-               [("3.0%", "배당률"), ("연 11%", "배당 성장"), ("19.8억", "30년 적립 중앙값")], "point-chart",
+               [("3.0%", "배당률"), ("연 11%", "배당 성장"), ("13년", "연속 배당 증가")], "point-chart",
                os.path.join(HERE, "..", "..", "etf", "out", "schd-thumbnail.webp"))

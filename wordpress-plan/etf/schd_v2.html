@@ -50,6 +50,9 @@ td.k{font-weight:800}
 .c-schd{color:var(--c-schd)}.c-dgro{color:var(--c-dgro)}.c-vym{color:var(--c-vym)}.c-spy{color:var(--c-spy)}.c-safe{color:var(--c-safe)}.c-grow{color:var(--c-grow)}
 ul.clean{margin:0 0 20px;padding-left:20px}
 ul.clean li{margin-bottom:8px}
+ul.corr{list-style:none;padding:0;margin:8px 0 20px}
+ul.corr li{padding:12px 0;border-bottom:1px solid var(--line);line-height:1.6}
+ul.corr li:last-child{border-bottom:0}
 .note{font-size:14px;color:var(--ink2);line-height:1.7}
 .baekho{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:28px 0}
 .baekho img{width:40px;height:40px;border-radius:50%;flex:none}
@@ -131,9 +134,15 @@ a{color:var(--accent);text-decoration:none}
 <p class="note">지난 15년이 특히 좋았던 기간이라 낙관적인 숫자예요. 연 8%로 보수적으로 잡으면 약 7.5억입니다. 세금·물가는 빠져 있어요.</p>
 
 <h2>SCHD에 무엇을 섞을까?</h2>
-<figure><img src="out/m-schd-correlation.webp" alt="SCHD와 S&amp;P500 0.82, 비트코인 0.25, 금 0.12, 장기채 0.08 상관계수" loading="lazy"></figure>
-<p class="how"><b>분석 방법 · 상관계수</b>두 자산이 같은 달에 같은 방향으로 움직였는지를 0~1 사이 숫자로 나타냈어요. 1에 가까우면 함께 오르내리고, 0에 가까우면 서로 상관없이 움직여요. 2014년부터 146개월 데이터로 계산했습니다.</p>
-<p>SCHD는 S&amp;P500과 <span class="num">0.82</span>로 거의 함께 움직이고, 금(<span class="num">0.12</span>)·장기채(<span class="num">0.08</span>)와는 따로 움직여요. 배당 ETF라고 <mark>하락장 방패는 아니라는 뜻</mark>이에요.</p>
+<figure><img src="out/m-schd-correlation.webp" alt="SCHD, S&amp;P500, 장기채, 금, 비트코인 상관계수 히트맵. SCHD와 S&amp;P500 0.82, 장기채 0.08, 금 0.12, 비트코인 0.25" loading="lazy"></figure>
+<p class="how"><b>분석 방법 · 상관계수</b>두 자산이 같은 달에 같은 방향으로 움직였는지를 숫자로 나타냈어요. 1에 가까울수록(파랑) 함께 오르내리고, 0에 가까울수록(빨강) 서로 따로 움직여요. 맨 윗줄이 SCHD 기준이에요. 2014년부터 146개월 데이터로 계산했습니다.</p>
+<ul class="corr">
+<li><span class="c-spy"><b>S&amp;P500</b></span> <span class="num">0.82</span><br>거의 함께 움직여요. 미국 주식이 빠지면 SCHD도 같이 빠져요.</li>
+<li><b>비트코인</b> <span class="num">0.25</span><br>약하게만 연결돼요. 섞어도 흔들림을 줄여 주진 않아요.</li>
+<li><b>금</b> <span class="num">0.12</span><br>거의 따로 움직여요. 주식이 빠질 때 버팀목이 될 수 있어요.</li>
+<li><b>장기채</b> <span class="num">0.08</span><br>가장 따로 움직여요. 섞으면 전체 흔들림이 가장 많이 줄어요.</li>
+</ul>
+<p>정리하면, 배당 ETF라고 <mark>하락장 방패는 아니에요.</mark> 방패가 필요하면 채권이나 금을 같이 담아야 해요.</p>
 <figure><img src="out/m-schd-portfolio.webp" alt="성장형 9.8배, SCHD 단독 6.6배, 안정형 3.5배 백테스트" loading="lazy"></figure>
 <p class="how"><b>분석 방법 · 백테스트</b>2011년 11월에 1,000만 원을 넣고, 매년 말 원래 비율로 다시 맞췄다고 가정해 과거 데이터로 계산했어요.</p>
 <div class="tbl"><table><thead><tr><th>예시 조합 (2011.11~)</th><th>연평균</th><th>최대 낙폭</th></tr></thead><tbody>

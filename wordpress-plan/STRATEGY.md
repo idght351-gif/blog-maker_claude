@@ -123,7 +123,10 @@
 - 목차는 검색 답(배당) → 나만의 분석(단점·30년·섞기) → 일반 정보(수익률·비교·기본정보) 순. 차트는 휴대폰용 m- 버전(가로 900px, 글자 22~34px), charts_mobile.py.
 
 ## FAQ 만드는 법 (2026-11-19 확정)
-- vidIQ 커넥터: `vidiq_youtube_search`(티커+배당, 한국, 조회수순) → 댓글 많은 한국어 영상 3개 `vidiq_video_comments`(relevance, minLikes 10~15). 호출당 5크레딧, 글 1편 약 20크레딧.
+- **vidIQ는 쓰지 않는다** (사용자: 유료 구독 안 함, 2026-11-19). 대신 무료: (1) YouTube Data API v3 키(무료 하루 10,000단위, 검색 100+댓글 3회≈103단위/글) — 키는 request_credential로 www.googleapis.com, 헤더 X-Goog-Api-Key. (2) 키 없을 땐 구글·네이버 자동완성만. yt-dlp는 클라우드 IP라 봇 차단돼 불가.
+- 네이버 자동완성: `curl -G https://ac.search.naver.com/nx/ac --data-urlencode q=티커 --data-urlencode st=100 --data-urlencode r_format=json --data-urlencode q_enc=UTF-8 --data-urlencode r_enc=UTF-8`
 - 공감 많은 댓글·반복 질문 4~6개 + 자동완성 검색어 질문 → FAQ. 댓글 작성자 이름·문장 그대로 인용 금지(요지만).
 - FAQ 위에 '질문 고른 방법' 회색 한 줄. 답은 백호 말풍선(반말, 데이터 근거, 권유 표현 금지).
 - SCHD 댓글 주제: 하락·횡보장 적립식(최다 공감), 그냥 S&P500?, 배당성장 지속?, 국내 미국배당다우존스 총비용·환헤지, PTP 10% 원천징수 오해, 월 배당 100만 원.
+
+- 상관계수 차트: 정사각 히트맵(X·Y 같은 5자산), 0=빨강·0.5=흰색·1=파랑, 대각선 회색 1.00, SCHD 줄 테두리. 아래에 자산별 한 줄 설명 목록(ul.corr). corr_heatmap.py

@@ -18,7 +18,8 @@ text_first = next(plain(b[1]) for b in paras if not plain(b[1]).startswith("["))
 imgs = [n for b in B if b[0] == "img" for n in b[1]]
 heads = [b[1] for b in B if b[0] in ("h", "hq", "hl", "hb")]
 emoji = sum(len(EMO.findall(l)) for l in lines)
-emoji_ratio = sum(1 for l in lines if EMO.search(l)) / len(lines)
+_sl = [x for l in lines for x in re.split(r"(?<=[.!?])\s+", l) if len(x.strip()) > 3]   # 문단을 이어 쓴 글(keep)도 문장 단위로 셈
+emoji_ratio = sum(1 for l in _sl if EMO.search(l)) / max(1, len(_sl))
 chars = len(body)
 kw_count = ns(body).count(ns(MAIN)) if MAIN else 0
 tags = TAGS.split()

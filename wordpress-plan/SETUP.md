@@ -9,7 +9,12 @@
 - [x] 4. (SSL 발급·대표도메인 완료 2026-11-19, 사이트주소 https 자동변경됨) 남은 것: 설정>일반 워드프레스 주소(siteurl)를 https로, 사이트 제목 백호 머니. http→https 자동 이동은 6단계 플러그인으로
 - [x] 5. (완료 2026-11-19, 제목 백호 머니·서울·https 확인) 고유주소(퍼머링크) = 글 이름, 사이트 제목·언어·시간대 설정
 - [x] 6. (완료 2026-11-19, http→https 301 확인. 카페24 기본 플러그인: WP Super Cache·Two Factor·NinjaFirewall·WPForce Logout·Complianz) 테마(GeneratePress 또는 Kadence) + 플러그인(Rank Math, UpdraftPlus) 설치
-- [ ] 7. Application Password 발급 → 보안 입력창으로 저장 → Claude 연결 테스트(임시저장 1건)
+- [x] 7. (완료 2026-11-19) Application Password(claude) → request_credential로 baekhomoney.com Basic 인증 저장(프록시 자동 주입, 값 모름). REST 인증·임시저장(글 id 7)·이미지 업로드 테스트 성공
 - [ ] 8. 필수 페이지: 소개·운영자 소개·문의·개인정보처리방침
 - [ ] 9. 구글 서치 콘솔(도메인 속성, DNS TXT) + 사이트맵 제출
 - [ ] 10. 첫 글(SCHD) 임시저장 → 검수 → 발행
+
+## 자동화 메모
+- REST: `curl https://baekhomoney.com/wp-json/wp/v2/...` 인증 헤더 없이 호출하면 프록시가 Basic 인증을 넣어 줌.
+- 글은 항상 `"status":"draft"`로만 올린다. 발행은 사용자가 검수 후 직접.
+- 이미지: `POST /wp/v2/media` (Content-Disposition 파일명 + Content-Type image/webp).

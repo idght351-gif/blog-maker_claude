@@ -22,22 +22,28 @@ details{font-size:13px;color:var(--muted)}
 details ul{margin:6px 0 0;padding-left:18px}
 pre{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0;font-family:var(--body);font-size:15px}
 .mk{background:var(--mark);color:var(--mark-fg);font-weight:700;padding:0 3px;border-radius:3px}
+.post{background:#fff;color:#222;overflow-wrap:anywhere}
+.post blockquote{margin:8px 0}
+.lab{font-size:12px;color:var(--muted);font-weight:700}
+button.sub{background:transparent;color:var(--naver)}
 </style>
 <div class="wrap">
   <section class="panel">
     <h1>{{STORE}} · 사진 자리 번호 원고</h1>
     <ol>
       <li>드라이브 가게 폴더의 <b>올릴순서</b> 폴더를 통째로 휴대폰에 받아요 (사진첩에 1번부터 차례로 들어가요).</li>
-      <li><b>제목 복사</b> → 앱 제목 칸, <b>전체 글 복사</b> → 앱 본문에 붙여넣기.</li>
+      <li><b>제목 복사</b> → 앱 제목 칸. 본문은 <b>서식 포함 복사</b>(색·굵게·형광펜 시험) 또는 <b>글만 복사</b> → 앱 본문에 붙여넣기.</li>
       <li>노란 표시 <span class="mk">[사진 3]</span> 자리마다 같은 번호 파일을 넣고, 표시 글자는 지워요. 묶음은 여러 장을 한 번에 골라 콜라주로.</li>
-      <li>자리 {{N}}개. 색·굵게는 앱에서 몇 군데만 칠하면 돼요.</li>
+      <li>자리 {{N}}개. 서식이 안 붙으면 아래 미리보기처럼 앱에서 몇 군데만 칠하면 돼요.</li>
     </ol>
     <div class="title">{{TITLE}}</div>
-    <div class="row"><button type="button" id="t">제목 복사</button><button type="button" id="a">전체 글 복사</button></div>
+    <div class="row"><button type="button" id="t">제목 복사</button><button type="button" id="r">서식 포함 복사</button><button type="button" id="a" class="sub">글만 복사</button></div>
     <div class="msg" id="msg" role="status" aria-live="polite"></div>
     <details><summary>올릴순서 파일 목록</summary><ul>{{FILES}}</ul></details>
   </section>
-  <section class="panel"><pre id="txt">{{TEXT}}</pre></section>
+  <div class="lab">↓ 서식 포함 미리보기 (이대로 복사돼요)</div>
+  <article class="panel post" id="rich">{{RICH}}</article>
+  <details class="panel"><summary>글만 보기 (서식 없음)</summary><pre id="txt">{{TEXT}}</pre></details>
 </div>
 <script id="plain" type="application/json">{{TEXT_JSON}}</script>
 <script>
@@ -47,5 +53,13 @@ const pre = document.getElementById('txt');
 pre.innerHTML = pre.innerHTML.replace(/\[(사진|GIF|동영상|장소 지도)[^\]]*\]/g, (m) => '<span class="mk">' + m + '</span>');
 const copy = (s, ok) => navigator.clipboard.writeText(s).then(() => msg(ok), () => { const r = document.createRange(); r.selectNodeContents(pre); const g = getSelection(); g.removeAllRanges(); g.addRange(r); msg('복사가 막혔어요. 선택된 글을 길게 눌러 복사해 주세요.'); });
 document.getElementById('t').addEventListener('click', () => copy(document.querySelector('.title').textContent, '제목을 복사했어요.'));
-document.getElementById('a').addEventListener('click', () => copy(TEXT, '전체 글을 복사했어요. 앱 본문에 붙여 넣으세요.'));
+document.getElementById('a').addEventListener('click', () => copy(TEXT, '글만 복사했어요. 앱 본문에 붙여 넣으세요.'));
+const rich = document.getElementById('rich');
+const selRich = () => { const r = document.createRange(); r.selectNodeContents(rich); const g = getSelection(); g.removeAllRanges(); g.addRange(r); };
+document.getElementById('r').addEventListener('click', () => {
+  try {
+    navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([rich.innerHTML], { type: 'text/html' }), 'text/plain': new Blob([TEXT], { type: 'text/plain' }) })])
+      .then(() => msg('서식 포함으로 복사했어요. 앱에 붙여서 색·굵게가 남는지 봐 주세요.'), () => { selRich(); msg('미리보기를 선택해 뒀어요. 길게 눌러 복사해 주세요.'); });
+  } catch (e) { selRich(); msg('미리보기를 선택해 뒀어요. 길게 눌러 복사해 주세요.'); }
+});
 </script>

@@ -1,10 +1,11 @@
-// 올릴순서 파일을 드라이브 번호 폴더 안 "올릴순서" 하위 폴더에 올린다. 사용법: node automation/upload_order.js <번호> <올릴순서 폴더 경로>
+// 올릴순서 파일을 드라이브 번호 폴더 안 "올릴순서" 하위 폴더에 올린다. 사용법: [REPLACE=1] node automation/upload_order.js <번호> <올릴순서 폴더 경로>
 const d = require(process.cwd() + '/automation/drive.js');
 const fs = require('fs'), path = require('path');
 const [, , num, dir] = process.argv;
 (async () => {
   const f = await d.byNum(Number(num));
   const ex = await d.list(`'${f.id}' in parents and name = '올릴순서' and mimeType = 'application/vnd.google-apps.folder'`);
+  if (process.env.REPLACE) { for (const x of ex) await d.api('PATCH', `/files/${x.id}`, { trashed: true }); ex.length = 0; }   // 번호가 바뀌면 예전 올릴순서 폴더는 휴지통으로
   const sub = ex[0] || await d.api('POST', '/files', { name: '올릴순서', mimeType: 'application/vnd.google-apps.folder', parents: [f.id] });
   const have = new Set((await d.list(`'${sub.id}' in parents`)).map(x => x.name));
   for (const name of fs.readdirSync(dir).sort()) {

@@ -272,7 +272,7 @@ async function cleanup() {
   }
 }
 
-module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered, copyShares };
+module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered, copyShares, accessToken };
 if (require.main !== module) return;
 const [cmd, a, b] = process.argv.slice(2);
 const run = {

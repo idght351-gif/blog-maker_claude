@@ -102,7 +102,7 @@ if research:
             if t[i:i + 16] in ref:
                 copied.append(l[:20]); break
 # 한 문장 이모지 2개 초과 (🙆‍♀️ 반복 제외)
-over_emoji = [l[:15] for l in lines if len([e for e in EMO.findall(re.sub(r'✨[^✨]{2,30}✨', '✨', l)) if "🙆" not in e]) > 2 and not l.startswith(("✨", "💵", "🧡"))]
+over_emoji = [l[:15] for l in _sl if len([e for e in EMO.findall(re.sub(r'✨[^✨]{2,30}✨', '✨', l)) if "🙆" not in e]) > 2 and not l.startswith(("✨", "💵", "🧡"))]
 # 한 문단 색 1가지
 INL = re.compile(r"\[\[(r|p|y|g|bl|o):")
 multi_color = [plain(b[1])[:15] for b in paras if len(set(INL.findall(b[1]))) > 1]

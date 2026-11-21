@@ -1,0 +1,51 @@
+<title>{{STORE}} 번호 원고</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* 레이아웃: 위 안내·복사 버튼, 아래 원고 전문(사진 자리 번호 표시). 휴대폰 한 줄 흐름 */
+:root{--bg:#f7f6f2;--panel:#fff;--fg:#24221f;--muted:#736d65;--line:#e3ded6;--naver:#03a94e;--naver-ink:#fff;--mark:#fff1b8;--mark-fg:#5a4500;
+  --body:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#181716;--panel:#22201e;--fg:#ebe7e0;--muted:#a49e95;--line:#38342f;--naver:#22c46a;--naver-ink:#0d1a12;--mark:#4a3d10;--mark-fg:#ffe9a0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#181716;--panel:#22201e;--fg:#ebe7e0;--muted:#a49e95;--line:#38342f;--naver:#22c46a;--naver-ink:#0d1a12;--mark:#4a3d10;--mark-fg:#ffe9a0;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.75}
+.wrap{max-width:680px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+h1{font-size:16px;margin:0;text-wrap:balance}
+ol{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+ol b{color:var(--fg)}
+.title{font-weight:700;word-break:keep-all}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;font-weight:700;border-radius:8px;padding:8px 14px;border:1px solid var(--naver);background:var(--naver);color:var(--naver-ink);cursor:pointer}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.msg{font-size:13px;color:var(--naver);min-height:1.2em}
+details{font-size:13px;color:var(--muted)}
+details ul{margin:6px 0 0;padding-left:18px}
+pre{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0;font-family:var(--body);font-size:15px}
+.mk{background:var(--mark);color:var(--mark-fg);font-weight:700;padding:0 3px;border-radius:3px}
+</style>
+<div class="wrap">
+  <section class="panel">
+    <h1>{{STORE}} · 사진 자리 번호 원고</h1>
+    <ol>
+      <li>드라이브 가게 폴더의 <b>올릴순서</b> 폴더를 통째로 휴대폰에 받아요 (사진첩에 1번부터 차례로 들어가요).</li>
+      <li><b>제목 복사</b> → 앱 제목 칸, <b>전체 글 복사</b> → 앱 본문에 붙여넣기.</li>
+      <li>노란 표시 <span class="mk">[사진 3]</span> 자리마다 같은 번호 파일을 넣고, 표시 글자는 지워요. 묶음은 여러 장을 한 번에 골라 콜라주로.</li>
+      <li>자리 {{N}}개. 색·굵게는 앱에서 몇 군데만 칠하면 돼요.</li>
+    </ol>
+    <div class="title">{{TITLE}}</div>
+    <div class="row"><button type="button" id="t">제목 복사</button><button type="button" id="a">전체 글 복사</button></div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <details><summary>올릴순서 파일 목록</summary><ul>{{FILES}}</ul></details>
+  </section>
+  <section class="panel"><pre id="txt">{{TEXT}}</pre></section>
+</div>
+<script id="plain" type="application/json">{{TEXT_JSON}}</script>
+<script>
+const msg = (s) => { document.getElementById('msg').textContent = s; };
+const TEXT = JSON.parse(document.getElementById('plain').textContent);
+const pre = document.getElementById('txt');
+pre.innerHTML = pre.innerHTML.replace(/\[(사진|GIF|동영상|장소 지도)[^\]]*\]/g, (m) => '<span class="mk">' + m + '</span>');
+const copy = (s, ok) => navigator.clipboard.writeText(s).then(() => msg(ok), () => { const r = document.createRange(); r.selectNodeContents(pre); const g = getSelection(); g.removeAllRanges(); g.addRange(r); msg('복사가 막혔어요. 선택된 글을 길게 눌러 복사해 주세요.'); });
+document.getElementById('t').addEventListener('click', () => copy(document.querySelector('.title').textContent, '제목을 복사했어요.'));
+document.getElementById('a').addEventListener('click', () => copy(TEXT, '전체 글을 복사했어요. 앱 본문에 붙여 넣으세요.'));
+</script>

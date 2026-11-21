@@ -69,6 +69,9 @@ for b in m.B:
 lines += ["", m.TAGS]; H += [P_(""), P_(html.escape(m.TAGS))]
 text = "\n".join(lines).strip() + "\n"
 (OUT / "원고.txt").write_text(FIX(m.TITLE) + "\n\n" + text)
+# 네이버 앱은 붙여 넣은 빈 줄을 지움 → 빈 줄을 눈에 안 보이는 공백(U+200B, 네이버 에디터가 빈 줄에 쓰는 문자)으로 채운 판 (구글 문서로 올려서 복사)
+_z = [l if l.strip() else "\u200b" for l in (FIX(m.TITLE) + "\n\n" + text).split("\n")]
+(OUT / "원고_빈줄유지.html").write_text('<html><head><meta charset="utf-8"></head><body>' + "".join("<p>" + (html.escape(l) if l != "\u200b" else "&#8203;") + "</p>" for l in _z) + "</body></html>")
 tpl = (Path(__file__).with_name("numbered_template.html")).read_text()
 page = tpl.replace("{{STORE}}", html.escape(getattr(m, "STORE", ""))).replace("{{TITLE}}", html.escape(FIX(m.TITLE))) \
           .replace("{{N}}", str(n)).replace("{{TEXT}}", html.escape(text)).replace("{{TEXT_JSON}}", html.escape(json.dumps(text, ensure_ascii=False))) \

@@ -137,5 +137,5 @@ models/yunet.onnx           얼굴 인식 모델
 ## 붙여넣기 도우미 페이지 (2026-11-18)
 자동 임시저장 대신 사용자가 네이버 앱에 직접 입력할 때: `python3 scripts/make_helper_page.py drafts/build_<가게>.py drafts/<가게>_upload <출력폴더>` → `<출력폴더>/index.html`을 Artifact로 올리고 `p/` 사진을 `files`로 함께 올림 (한 번에 64MB까지라 크면 나눠 올림, `capabilities: {downloads: true}`). 글 덩어리마다 [글 복사], 사진마다 [저장] 버튼. 견본: 비바나폴리.
 - PC 버전: `python3 scripts/make_pc_page.py drafts/build_<가게>.py drafts/<가게>_upload <출력.html>` → [본문 전체 복사(서식+사진)] 버튼 하나로 복사해 네이버 PC 에디터에 Ctrl+V (사진은 페이지 안에 1000px로 내장, GIF는 자리 표시 + 따로 저장). 붙여넣기로 사진이 들어가는지는 시험 중.
-- 번호 원고 방식 (사용자가 사진을 직접 넣음, 2026-11-21): `python3 scripts/make_numbered.py drafts/build_<가게>.py <출력폴더> [원본 동영상]` → `<출력폴더>/원고.txt`·`index.html`(복사 페이지)·`올릴순서/01_사진.jpg…`(찍은 시간 1분 간격) → `node automation/upload_order.js <번호> <출력폴더>/올릴순서` 로 드라이브 가게 폴더 안 `올릴순서`에 올림.
+- 번호 원고 방식 (사용자가 사진을 직접 넣음, 2026-11-21; 받은 파일은 사진 앱에서 가게 이름 앨범을 만들어 넣으면 찍은 시간 순=번호 순으로 정렬됨): `python3 scripts/make_numbered.py drafts/build_<가게>.py <출력폴더> [원본 동영상]` → `<출력폴더>/원고.txt`·`index.html`(복사 페이지)·`올릴순서/01_사진.jpg…`(찍은 시간 1분 간격) → `node automation/upload_order.js <번호> <출력폴더>/올릴순서` 로 드라이브 가게 폴더 안 `올릴순서`에 올림.
 - 휴대폰 앱의 원고 페이지는 클립보드 복사가 막히고, 네이버 앱은 붙여 넣은 글의 서식·빈 줄을 지움 → `node automation/upload_doc.js <번호> <출력폴더>/원고_빈줄유지.html "<가게> 원고 (빈 줄 유지)"` 로 구글 문서를 올려서 사용자가 문서 앱에서 모두 선택 → 복사 (빈 줄은 U+200B로 채워 유지). 서식은 앱에서 직접 칠함 (칠할 곳 목록 문서).

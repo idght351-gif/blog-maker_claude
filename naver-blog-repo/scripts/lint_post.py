@@ -56,6 +56,12 @@ _log = _P(__file__).resolve().parent.parent / "data" / "template_log.json"
 _recent = [x["template"] for x in (_json.loads(_log.read_text()) if _log.exists() else [])][-2:]
 _store = getattr(m, "STORE", "")
 
+
+# (2026-11-28) im-not-ai 윤문 규칙 중 블로그에 맞는 것
+_comma = re.findall(r"[가-힣](고|며|지만|면서|아서|어서),\s", body)
+_d = [w for w in ["결론적으로", "따라서", "이를 통해", "요약하면", "정리하자면", "시사하는 바", "주목할 만하", "매우 중요하", "핵심은", "중요한 것은", "하는 이유다", "가지고 있", "되어진", "단순한"] if w in body]
+_dash = body.count("—")
+
 checks = [
     ("메인 키워드 지정", bool(MAIN), MAIN or "없음"),
     ("제목 35~50자", 35 <= len(TITLE) <= 50, f"{len(TITLE)}자"),
@@ -80,7 +86,7 @@ checks = [
     ("좋았던 점 파랑 / 아쉬운 점 주황", "[[bl:" in str(B) and "[[o:" in str(B), ""),
     ("주문메뉴는 분홍색만 (⭐주문메뉴⭐ 없음)", "⭐주문메뉴⭐" not in str(B) and "[[p:" in str(B), ""),
     ("맛 후기 첫 줄에 주문 메뉴 재기재", "오늘 주문한 메뉴" in str(B), ""),
-    ("장소 지도 블록", any(b[0] == "place" for b in B), ""),
+    ("장소 지도 (NO_PLACE면 없어야 함)", (not any(b[0] == "place" for b in B)) if getattr(m, "NO_PLACE", False) else any(b[0] == "place" for b in B), "생략" if getattr(m, "NO_PLACE", False) else ""),
     # 2026-11-12 사용자 지시: 광고 글에도 같은 틀을 쓰므로 '내돈내산'·대가 없음 표현 금지 (제목·본문·태그)
     ("'내돈내산'·'대가 없이'·'협찬 아님' 표현 없음",
      not re.search(r"내돈내산|대가\s*(없이|를\s*받지)|협찬(이나|을)?\s*(받지|없)", TITLE + body + TAGS + str(B)),
@@ -122,6 +128,9 @@ checks += [
     ("[템플릿] T1~T6 지정, 최근 2개와 다름", bool(re.fullmatch(r"T[1-6]", TID)) and TID not in _recent, f"{TID or '없음'} / 최근 {_recent}"),
     ("협찬 글이면 본문에 체험단·협찬·제공 문장 1곳", (not getattr(m, "SPONSORED", False)) or bool(re.search("체험단|협찬|제공받", body)), "해당 없음" if not getattr(m, "SPONSORED", False) else ("OK" if re.search("체험단|협찬|제공받", body) else "없음")),
     ("GIF 3개 이하 (나머지 영상은 원본 동영상 1개로)", sum(1 for b in B if b[0] == "img" for n in b[1] if n.endswith(".gif")) <= 3, f"{sum(1 for b in B if b[0] == 'img' for n in b[1] if n.endswith('.gif'))}개"),
+    ("[윤문] 연결어미 뒤 쉼표 2개 이하", len(_comma) <= 2, f"{len(_comma)}개"),
+    ("[윤문] 결산·과장·번역투 관용구 없음", not _d, ", ".join(_d) or "OK"),
+    ("[윤문] 대시(—) 2개 이하", _dash <= 2, f"{_dash}개"),
     ("광고 티 특수문자(⭕❌★■📢) 없음", not re.search("[⭕❌★■📢]", body + TITLE), ", ".join(sorted(set(re.findall("[⭕❌★■📢]", body + TITLE)))) or "OK"),
     ("[AI티] 템플릿 문구 없음", not tmpl, ", ".join(tmpl) or "OK"),
     ("빨강·초록 강조 2~15자", not long_spans, ", ".join(s[:12] for s in long_spans[:3]) or "OK"),

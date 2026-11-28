@@ -1,0 +1,93 @@
+<title>{{STORE}} PC 붙여넣기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* 레이아웃: 위 조작판(복사 버튼·순서) + 아래 실제로 복사될 본문. 본문은 블로그처럼 흰 바탕 고정 */
+:root{
+  --bg:#f4f3f0;--panel:#ffffff;--fg:#24221f;--muted:#736d65;--line:#e2ddd5;
+  --naver:#03a94e;--naver-ink:#ffffff;--paper:#ffffff;--paper-fg:#222222;
+  --body:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#181716;--panel:#22201e;--fg:#ebe7e0;--muted:#a49e95;--line:#38342f;--naver:#22c46a;--naver-ink:#0d1a12;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#181716;--panel:#22201e;--fg:#ebe7e0;--muted:#a49e95;--line:#38342f;--naver:#22c46a;--naver-ink:#0d1a12;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.7}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+h1{font-size:18px;margin:0;text-wrap:balance}
+.steps{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+.steps b{color:var(--fg)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.title{font-weight:700;word-break:keep-all}
+button{font:inherit;font-size:14px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--naver);background:var(--naver);color:var(--naver-ink)}
+button.sub{background:transparent;color:var(--naver)}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.msg{font-size:13px;color:var(--naver);min-height:1.2em}
+.gifs{margin:0;padding-left:18px;font-size:14px}
+.gifs li{margin:4px 0}
+.label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.03em}
+#post{background:var(--paper);color:var(--paper-fg);border:1px solid var(--line);border-radius:10px;padding:24px;overflow-wrap:anywhere;min-width:0}
+#post img{max-width:100%;height:auto}
+</style>
+<div class="wrap">
+  <section class="panel">
+    <h1>{{STORE}} · PC 붙여넣기 시험</h1>
+    <ol class="steps">
+      <li>PC 브라우저에서 블로그 <b>글쓰기</b>를 열어요.</li>
+      <li><b>제목 복사</b> → 에디터 제목 칸에 붙여넣기.</li>
+      <li><b>본문 전체 복사</b> → 에디터 본문 첫 줄 클릭 → <b>Ctrl+V</b>.</li>
+      <li>사진 {{N_IMG}}장 중 GIF {{N_GIF}}개와 장소 지도는 표시된 자리에 따로 넣어요.</li>
+      <li>바로 발행하지 말고 <b>임시저장</b>한 뒤, 사진이 들어갔는지 확인해 주세요.</li>
+    </ol>
+    <div class="label">제목</div>
+    <div class="title">{{TITLE}}</div>
+    <div class="row">
+      <button type="button" id="copyTitle">제목 복사</button>
+      <button type="button" id="copyPost">본문 전체 복사 (서식+사진)</button>
+      <button type="button" id="copyText" class="sub">글만 복사 (사진 자리 표시)</button>
+    </div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <div class="label">GIF (따로 저장해서 자리에 넣기)</div>
+    <ul class="gifs">{{GIFS}}</ul>
+  </section>
+  <div class="label">↓ 복사되는 본문 (블로그에 들어갈 모습)</div>
+  <article id="post">{{POST}}</article>
+</div>
+<script id="plain" type="application/json">{{TEXT_JSON}}</script>
+<script>
+const msg = (t) => { document.getElementById('msg').textContent = t; };
+const TITLE = document.querySelector('.title').textContent;
+const TEXT = JSON.parse(document.getElementById('plain').textContent);
+const post = document.getElementById('post');
+const selectPost = () => { const r = document.createRange(); r.selectNodeContents(post); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+
+document.getElementById('copyTitle').addEventListener('click', () => {
+  navigator.clipboard.writeText(TITLE).then(() => msg('제목을 복사했어요.'), () => msg('제목을 드래그해서 Ctrl+C로 복사해 주세요.'));
+});
+document.getElementById('copyText').addEventListener('click', () => {
+  navigator.clipboard.writeText(TEXT).then(() => msg('글만 복사했어요. [사진 N] 자리에 사진을 넣어 주세요.'), () => msg('복사가 막혔어요. 아래 본문을 드래그해 복사해 주세요.'));
+});
+document.getElementById('copyPost').addEventListener('click', () => {
+  try {
+    const item = new ClipboardItem({
+      'text/html': new Blob([post.innerHTML], { type: 'text/html' }),
+      'text/plain': new Blob([TEXT], { type: 'text/plain' }),
+    });
+    navigator.clipboard.write([item]).then(
+      () => msg('본문 전체(서식+사진)를 복사했어요. 에디터 본문에 Ctrl+V 하세요.'),
+      () => { selectPost(); msg('본문을 선택해 뒀어요. 지금 Ctrl+C를 누른 뒤 에디터에 Ctrl+V 하세요.'); });
+  } catch (e) { selectPost(); msg('본문을 선택해 뒀어요. 지금 Ctrl+C를 누른 뒤 에디터에 Ctrl+V 하세요.'); }
+});
+
+(async () => {
+  const dl = await window.claude?.use?.('downloads').catch(() => null);
+  if (!dl) return;
+  document.querySelectorAll('button.save').forEach((b) => { b.hidden = false; b.classList.add('sub'); });
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('button.save'); if (!b) return;
+    b.disabled = true;
+    try { const blob = await (await fetch(b.dataset.file)).blob(); await dl.save({ filename: b.dataset.file.split('/').pop(), data: blob }); b.textContent = '저장됨'; }
+    catch (err) { msg(err && err.code === 'declined' ? '저장을 취소했어요.' : 'GIF 저장이 안 되면 휴대폰 도우미 페이지에서 받아 주세요.'); }
+    finally { b.disabled = false; }
+  });
+})();
+</script>

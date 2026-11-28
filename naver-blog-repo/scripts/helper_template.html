@@ -1,0 +1,102 @@
+<title>{{STORE}} 붙여넣기 도우미</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 휴대폰 한 줄 흐름. 네이버 글 순서 그대로 위→아래, 덩어리마다 위에 '할 일' 막대 */
+:root{
+  --bg:#fbfaf7;--card:#ffffff;--fg:#25231f;--muted:#77716a;--line:#e7e2da;
+  --naver:#03a94e;--naver-ink:#ffffff;--done:#e9f6ee;--mark:#f7e27a;--mark-fg:#25231f;
+  --c-r:#d8261c;--c-p:#d1207a;--c-g:#008a43;--c-bl:#0067b0;--c-o:#d77a00;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --post:'Gowun Dodum','Noto Sans KR',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171614;--card:#211f1c;--fg:#ece8e1;--muted:#a39d94;--line:#36332e;
+  --naver:#22c46a;--naver-ink:#0d1a12;--done:#1d3326;--mark:#7a6a1c;--mark-fg:#fff8d6;
+  --c-r:#ff6b60;--c-p:#ff6fb4;--c-g:#4fd18a;--c-bl:#5eb3ff;--c-o:#ffb04d;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171614;--card:#211f1c;--fg:#ece8e1;--muted:#a39d94;--line:#36332e;
+  --naver:#22c46a;--naver-ink:#0d1a12;--done:#1d3326;--mark:#7a6a1c;--mark-fg:#fff8d6;
+  --c-r:#ff6b60;--c-p:#ff6fb4;--c-g:#4fd18a;--c-bl:#5eb3ff;--c-o:#ffb04d;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.7}
+.wrap{max-width:640px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+header h1{font-size:13px;letter-spacing:.04em;color:var(--muted);margin:0;font-weight:700}
+.howto{font-size:13px;color:var(--muted);margin:4px 0 0}
+.howto b{color:var(--fg)}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0;transition:background .2s}
+.blk.done{background:var(--done)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.tag{font-size:12px;color:var(--muted);font-weight:700}
+.prose{font-family:var(--post);word-break:keep-all;overflow-wrap:anywhere}
+.prose p{margin:0}
+.tags{color:var(--naver)}
+mark{background:var(--mark);color:var(--mark-fg);padding:0 2px}
+.qt{font-family:var(--post);font-size:17px;text-align:center;border-block:2px solid var(--fg);padding:10px 6px;word-break:keep-all}
+.title .qt{border:0;font-size:18px;font-weight:700;text-align:left;padding:0}
+.grid{display:grid;gap:8px}
+.grid.n2{grid-template-columns:1fr 1fr}
+figure{margin:0;display:flex;flex-direction:column;gap:4px;min-width:0}
+figure img{width:100%;max-width:100%;height:auto;border-radius:6px;display:block;background:var(--line)}
+figcaption{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+.note{border-style:dashed}
+.note p{margin:2px 0 8px;font-size:14px}
+button{font:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--naver);background:var(--naver);color:var(--naver-ink)}
+button.save{background:transparent;color:var(--naver);padding:3px 10px}
+button.ok{background:transparent;color:var(--naver)}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+textarea.fallback{width:100%;min-height:120px;font:inherit;margin-top:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+<header>
+  <h1>{{STORE}} · 네이버 앱 붙여넣기 도우미</h1>
+  <p class="howto">위에서부터 차례로: <b>글 복사</b> → 앱에 붙이기 → <b>사진 저장</b> → 앱에서 방금 저장한 사진 넣기. 끝낸 칸은 초록색으로 바뀌어요. 사진 {{N_IMG}}장.</p>
+</header>
+<section class="blk title"><div class="bar"><span class="tag">제목</span><button type="button" class="copy" data-copy="{{TITLE_ATTR}}">제목 복사</button></div><div class="qt">{{TITLE}}</div></section>
+{{BODY}}
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const toast = (msg) => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 1600); };
+const KEY = 'helper-done:' + location.pathname;
+let done = {}; try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+const blocks = [...document.querySelectorAll('.blk')];
+blocks.forEach((b, i) => { b.dataset.i = i; if (done[i]) b.classList.add('done'); });
+const mark = (el) => { const b = el.closest('.blk'); if (!b) return; b.classList.add('done'); done[b.dataset.i] = 1; try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+
+document.addEventListener('click', (e) => {
+  const c = e.target.closest('button.copy');
+  if (!c) return;
+  const text = c.dataset.copy;
+  const ok = () => { c.classList.add('ok'); mark(c); toast('복사했어요. 앱에 붙여 넣으세요'); };
+  const fallback = () => {
+    let ta = c.closest('.blk').querySelector('textarea.fallback');
+    if (!ta) { ta = document.createElement('textarea'); ta.className = 'fallback'; ta.readOnly = true; ta.value = text; c.closest('.blk').appendChild(ta); }
+    ta.focus(); ta.select(); toast('글을 길게 눌러 복사하세요');
+  };
+  try { navigator.clipboard.writeText(text).then(ok, fallback); } catch (err) { fallback(); }
+});
+
+(async () => {
+  const dl = await window.claude?.use?.('downloads').catch(() => null);
+  if (!dl) return;   // 저장 기능이 없는 화면: 사진을 길게 눌러 저장
+  document.querySelectorAll('button.save').forEach((s) => { s.hidden = false; });
+  document.addEventListener('click', async (e) => {
+    const s = e.target.closest('button.save');
+    if (!s) return;
+    s.disabled = true;
+    try {
+      const blob = await (await fetch(s.dataset.file)).blob();
+      await dl.save({ filename: s.dataset.file.split('/').pop(), data: blob });
+      s.textContent = '저장됨'; s.classList.add('ok');
+      const fig = s.closest('.grid'); if ([...fig.querySelectorAll('button.save')].every((x) => x.classList.contains('ok'))) mark(s);
+    } catch (err) {
+      toast(err && err.code === 'declined' ? '저장을 취소했어요' : '저장이 안 되면 사진을 길게 눌러 저장하세요');
+    } finally { s.disabled = false; }
+  });
+})();
+</script>

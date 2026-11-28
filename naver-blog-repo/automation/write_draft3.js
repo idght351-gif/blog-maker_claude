@@ -164,7 +164,8 @@ const BODY = '.se-component.se-text .se-text-paragraph';
   if (outOfOrder.length) console.log('순서 어긋남:', outOfOrder.slice(0, 5).join(' | '));
   await page.screenshot({ path: S + '/shots/v3_end.png' });
 
-  const ok = gotTitle === spec.title && !missing.length && !outOfOrder.length && st.quote === spec.n_quote && st.placeBeforeTags;
+  const needPlace = spec.ops.some(o => o.t === 'place');   // 2026-11-28: 지도 생략 글은 장소 확인 안 함
+  const ok = gotTitle === spec.title && !missing.length && !outOfOrder.length && st.quote === spec.n_quote && (!needPlace || st.placeBeforeTags);
   if (!ok) {
     console.log('검증 실패 → 저장하지 않고 입력 내용 비움');
     await fr.locator('.se-title-text').first().click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Delete');

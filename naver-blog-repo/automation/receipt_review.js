@@ -98,6 +98,10 @@ let step = 0;
       if (!el) return false; el.click(); return true;
     }, t);
     if (!ok) console.log('선택 항목 없음:', t);
+    else {   // 방문 정보(라디오)는 DOM click이 안 먹을 때가 있어 실제 클릭으로 확인
+      const lab = page.locator('label').filter({ hasText: new RegExp('^\\s*' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$') }).first();
+      if (await lab.count()) { const inp = lab.locator('input'); const checked = await inp.count() ? await inp.first().isChecked().catch(() => null) : null; if (checked === false) await lab.click({ force: true }).catch(() => {}); }
+    }
     await sleep(400);
   }
   // 별점(필수): DOM click()으로는 안 먹어서 실제 터치처럼 누른다
@@ -107,6 +111,8 @@ let step = 0;
     await star.evaluate(e => e.scrollIntoView({ block: 'center' })); await sleep(800);   // 위에 고정되는 가게 이름 바에 가리지 않게 가운데로
     const bx = await star.boundingBox();
     await page.touchscreen.tap(bx.x + bx.width / 2, bx.y + bx.height / 2); await sleep(800);
+    // 2026-11-27: 화면 아래 고정 버튼에 가려 탭이 빗나가는 경우 → 실제 클릭으로 한 번 더
+    await star.click({ force: true }).catch(() => {}); await sleep(800);
   }
   else console.log('별점 버튼 없음');
   const STEPS = JSON.parse(process.env.RR_STEPS || '[]');   // 예: ["다음", "리뷰 쓰기"]

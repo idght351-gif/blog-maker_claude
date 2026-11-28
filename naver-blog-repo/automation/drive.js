@@ -157,8 +157,10 @@ async function init(count = 5) {
   const have = await numbered();
   for (let i = 1; i <= Number(count); i++) {
     if (have[i]) { log('있음:', have[i].map(f => f.name).join(', ')); continue; }
-    await api('POST', '/files', { name: `${i}_${EMPTY}`, mimeType: FOLDER, parents: ['root'] });
-    log('만듦:', `${i}_${EMPTY}`);
+    const nf = await api('POST', '/files', { name: `${i}_${EMPTY}`, mimeType: FOLDER, parents: ['root'] });
+    const src = Object.values(have)[0];   // 기존 번호 폴더의 공유(사진 올리는 계정 편집자)를 그대로 복사
+    const shared = src ? await copyShares(src[0].id, nf.id) : [];
+    log('만듦:', `${i}_${EMPTY}`, shared.length ? `(공유: ${shared.length}명)` : '');
   }
 }
 
@@ -177,10 +179,11 @@ async function status() {
 async function claim(n, store, kind = 'post') {
   if (!n || !store) throw new Error(`사용법: ${kind === 'receipt' ? 'receipt' : 'claim'} <번호> <가게이름>`);
   const f = await byNum(n);
-  if (f.rest !== EMPTY) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
+  const pending = f.rest.endsWith('_미발행');   // 미리 가게 이름을 붙여 둔 폴더 (예: 2_일일미미_미발행)
+  if (f.rest !== EMPTY && !pending) throw new Error(`${f.name} 은 빈 폴더가 아닙니다.`);
   const cnt = (await filesIn(f.id)).length;
   if (!cnt) throw new Error(`${f.name} 에 사진이 없습니다.`);
-  await api('PATCH', `/files/${f.id}`, { name: `${n}_${store}`, description: JSON.stringify({ store, kind, claimedAt: new Date().toISOString() }) });
+  await api('PATCH', `/files/${f.id}`, { name: `${n}_${store}${pending ? '_미발행' : ''}`, description: JSON.stringify({ store, kind, claimedAt: new Date().toISOString() }) });
   log(`${f.name} → ${n}_${store} (파일 ${cnt}개)`);
 }
 
@@ -269,7 +272,7 @@ async function cleanup() {
   }
 }
 
-module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered, copyShares };
+module.exports = { api, list, folders, filesIn, rename, findFolder, published, byNum, numbered, copyShares, accessToken };
 if (require.main !== module) return;
 const [cmd, a, b] = process.argv.slice(2);
 const run = {

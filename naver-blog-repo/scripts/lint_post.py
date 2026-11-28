@@ -74,7 +74,7 @@ checks = [
     ("보조 키워드 본문 포함", all(ns(s) in ns(body + TITLE) for s in SUBS), ", ".join(s for s in SUBS if ns(s) not in ns(body + TITLE)) or "모두 포함"),
     ("태그 맨 앞 메인 키워드", tags and ns(MAIN) in tags[0], tags[0] if tags else ""),
     ("해시태그 15~30개", 15 <= len(tags) <= 30, f"{len(tags)}개"),
-    ("본문 길이 (짧게 1,800~2,500 / 보통 2,800~3,800 / 길게 4,500~6,000)", (lambda r: r[0] <= chars <= r[1])({"짧게": (1800, 2500), "보통": (2800, 3800), "길게": (4500, 6000)}.get(getattr(m, "LENGTH", ""), (1800, 6000))), f"{chars:,}자 / {getattr(m, 'LENGTH', '지정 없음')}"),
+    ("본문 2,500~5,000자 (목표 ±10%)", 2500 <= chars <= 5000 and (not getattr(m, "TARGET_CHARS", 0) or abs(chars - m.TARGET_CHARS) <= m.TARGET_CHARS * 0.1), f"{chars:,}자 / 목표 {getattr(m, 'TARGET_CHARS', '없음')}"),
     ("사진 25장 이상", len(set(imgs)) >= 25, f"{len(set(imgs))}장"),
     ("이모지 40~80개 (사용자: 기본 이모티콘 많이)", 40 <= emoji <= 80, f"{emoji}개"),
     ("이모지 문장 비율 40~70%", 0.4 <= emoji_ratio <= 0.7, f"{emoji_ratio:.0%}"),
